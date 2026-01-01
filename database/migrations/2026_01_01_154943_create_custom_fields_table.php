@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->integer('order')->default(0);
             $table->timestamps();
-            
+
             // Composite unique constraint for model_type and field_name
             $table->unique(['model_type', 'field_name']);
         });
@@ -34,7 +34,7 @@ return new class extends Migration
             $table->morphs('model'); // model_type and model_id for polymorphic relation
             $table->text('value')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['custom_field_id', 'model_type', 'model_id']);
         });
     }

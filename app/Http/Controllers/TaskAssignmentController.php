@@ -18,7 +18,7 @@ class TaskAssignmentController extends Controller
             ->where('assigned_to', $user->id)
             ->latest()
             ->paginate(15);
-        
+
         return view('my-tasks', compact('taskAssignments'));
     }
 

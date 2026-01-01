@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Department;
 use App\Models\CustomField;
+use App\Models\Department;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +18,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with(['department', 'roles'])->paginate(15);
-        
+
         return view('users.index', compact('users'));
     }
 
@@ -33,7 +33,7 @@ class UserController extends Controller
             ->where('is_active', true)
             ->orderBy('order')
             ->get();
-        
+
         return view('users.create', compact('departments', 'roles', 'customFields'));
     }
 
@@ -54,7 +54,7 @@ class UserController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
@@ -63,9 +63,9 @@ class UserController extends Controller
                 'phone' => $validated['phone'],
                 'status' => $validated['status'],
             ]);
-            
+
             $user->assignRole($validated['role']);
-            
+
             // Handle custom fields if they exist
             if ($request->has('custom_fields')) {
                 foreach ($request->custom_fields as $fieldId => $value) {
@@ -75,14 +75,15 @@ class UserController extends Controller
                     ]);
                 }
             }
-            
+
             DB::commit();
-            
+
             return redirect()->route('users.index')
                 ->with('success', 'User created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Failed to create user: ' . $e->getMessage())
+
+            return back()->with('error', 'Failed to create user: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -94,7 +95,7 @@ class UserController extends Controller
     {
         $user->load(['department', 'roles', 'customFieldValues.customField']);
         $customFieldValues = $user->customFieldValues;
-        
+
         return view('users.show', compact('user', 'customFieldValues'));
     }
 
@@ -109,9 +110,9 @@ class UserController extends Controller
             ->where('is_active', true)
             ->orderBy('order')
             ->get();
-        
+
         $user->load('customFieldValues');
-        
+
         return view('users.edit', compact('user', 'departments', 'roles', 'customFields'));
     }
 
@@ -122,7 +123,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'department_id' => 'nullable|exists:departments,id',
             'phone' => 'nullable|string|max:20',
@@ -132,7 +133,7 @@ class UserController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $updateData = [
                 'name' => $validated['name'],
                 'email' => $validated['email'],
@@ -140,16 +141,16 @@ class UserController extends Controller
                 'phone' => $validated['phone'],
                 'status' => $validated['status'],
             ];
-            
+
             if ($request->filled('password')) {
                 $updateData['password'] = Hash::make($validated['password']);
             }
-            
+
             $user->update($updateData);
-            
+
             // Update role
             $user->syncRoles([$validated['role']]);
-            
+
             // Handle custom fields if they exist
             if ($request->has('custom_fields')) {
                 foreach ($request->custom_fields as $fieldId => $value) {
@@ -159,14 +160,15 @@ class UserController extends Controller
                     );
                 }
             }
-            
+
             DB::commit();
-            
+
             return redirect()->route('users.index')
                 ->with('success', 'User updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Failed to update user: ' . $e->getMessage())
+
+            return back()->with('error', 'Failed to update user: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -181,13 +183,13 @@ class UserController extends Controller
             if ($user->id === auth()->id()) {
                 return back()->with('error', 'Cannot delete your own account.');
             }
-            
+
             $user->delete();
-            
+
             return redirect()->route('users.index')
                 ->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete user: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete user: '.$e->getMessage());
         }
     }
 }

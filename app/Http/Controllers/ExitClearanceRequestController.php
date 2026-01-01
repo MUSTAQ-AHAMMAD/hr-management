@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ExitClearanceRequest;
 use App\Models\Employee;
+use App\Models\ExitClearanceRequest;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\User;
@@ -20,6 +20,7 @@ class ExitClearanceRequestController extends Controller
         $requests = ExitClearanceRequest::with(['employee', 'initiatedBy', 'taskAssignments.task'])
             ->latest()
             ->paginate(15);
+
         return view('exit-clearance-requests.index', compact('requests'));
     }
 
@@ -29,6 +30,7 @@ class ExitClearanceRequestController extends Controller
     public function create()
     {
         $employees = Employee::whereIn('status', ['active', 'inactive'])->get();
+
         return view('exit-clearance-requests.create', compact('employees'));
     }
 
@@ -58,6 +60,7 @@ class ExitClearanceRequestController extends Controller
     public function show(ExitClearanceRequest $exitClearanceRequest)
     {
         $exitClearanceRequest->load(['employee.department', 'initiatedBy', 'taskAssignments.task.department', 'taskAssignments.assignedTo']);
+
         return view('exit-clearance-requests.show', compact('exitClearanceRequest'));
     }
 
@@ -67,6 +70,7 @@ class ExitClearanceRequestController extends Controller
     public function edit(ExitClearanceRequest $exitClearanceRequest)
     {
         $employees = Employee::all();
+
         return view('exit-clearance-requests.edit', compact('exitClearanceRequest', 'employees'));
     }
 
@@ -115,10 +119,10 @@ class ExitClearanceRequestController extends Controller
 
         foreach ($validated['task_ids'] as $taskId) {
             $task = Task::find($taskId);
-            
+
             // Find a user from the task's department to assign to
             $assignee = User::where('department_id', $task->department_id)
-                ->whereHas('roles', function($query) {
+                ->whereHas('roles', function ($query) {
                     $query->whereIn('name', ['Department User', 'Admin', 'Super Admin']);
                 })
                 ->first();

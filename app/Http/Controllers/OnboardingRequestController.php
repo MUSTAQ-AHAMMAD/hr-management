@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\OnboardingRequest;
 use App\Models\Employee;
+use App\Models\OnboardingRequest;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\User;
@@ -20,6 +20,7 @@ class OnboardingRequestController extends Controller
         $requests = OnboardingRequest::with(['employee', 'initiatedBy', 'taskAssignments.task'])
             ->latest()
             ->paginate(15);
+
         return view('onboarding-requests.index', compact('requests'));
     }
 
@@ -29,10 +30,11 @@ class OnboardingRequestController extends Controller
     public function create()
     {
         $employees = Employee::where('status', 'active')
-            ->whereDoesntHave('onboardingRequests', function($query) {
+            ->whereDoesntHave('onboardingRequests', function ($query) {
                 $query->where('status', '!=', 'completed');
             })
             ->get();
+
         return view('onboarding-requests.create', compact('employees'));
     }
 
@@ -62,6 +64,7 @@ class OnboardingRequestController extends Controller
     public function show(OnboardingRequest $onboardingRequest)
     {
         $onboardingRequest->load(['employee.department', 'initiatedBy', 'taskAssignments.task.department', 'taskAssignments.assignedTo']);
+
         return view('onboarding-requests.show', compact('onboardingRequest'));
     }
 
@@ -71,6 +74,7 @@ class OnboardingRequestController extends Controller
     public function edit(OnboardingRequest $onboardingRequest)
     {
         $employees = Employee::where('status', 'active')->get();
+
         return view('onboarding-requests.edit', compact('onboardingRequest', 'employees'));
     }
 
@@ -119,10 +123,10 @@ class OnboardingRequestController extends Controller
 
         foreach ($validated['task_ids'] as $taskId) {
             $task = Task::find($taskId);
-            
+
             // Find a user from the task's department to assign to
             $assignee = User::where('department_id', $task->department_id)
-                ->whereHas('roles', function($query) {
+                ->whereHas('roles', function ($query) {
                     $query->whereIn('name', ['Department User', 'Admin', 'Super Admin']);
                 })
                 ->first();

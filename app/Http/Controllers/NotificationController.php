@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
@@ -16,7 +15,7 @@ class NotificationController extends Controller
         $notifications = Notification::where('user_id', Auth::id())
             ->latest()
             ->paginate(20);
-        
+
         return view('notifications.index', compact('notifications'));
     }
 
@@ -28,7 +27,7 @@ class NotificationController extends Controller
         if ($notification->user_id === Auth::id()) {
             $notification->update(['is_read' => true]);
         }
-        
+
         return back()->with('success', 'Notification marked as read.');
     }
 
@@ -40,7 +39,7 @@ class NotificationController extends Controller
         Notification::where('user_id', Auth::id())
             ->where('is_read', false)
             ->update(['is_read' => true]);
-        
+
         return back()->with('success', 'All notifications marked as read.');
     }
 }

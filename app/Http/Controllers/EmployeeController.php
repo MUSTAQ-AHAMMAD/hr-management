@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
 use App\Models\Department;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -14,6 +14,7 @@ class EmployeeController extends Controller
     public function index()
     {
         $employees = Employee::with('department')->paginate(15);
+
         return view('employees.index', compact('employees'));
     }
 
@@ -23,6 +24,7 @@ class EmployeeController extends Controller
     public function create()
     {
         $departments = Department::where('is_active', true)->get();
+
         return view('employees.create', compact('departments'));
     }
 
@@ -55,6 +57,7 @@ class EmployeeController extends Controller
     public function show(Employee $employee)
     {
         $employee->load('department', 'onboardingRequests', 'exitClearanceRequests');
+
         return view('employees.show', compact('employee'));
     }
 
@@ -64,6 +67,7 @@ class EmployeeController extends Controller
     public function edit(Employee $employee)
     {
         $departments = Department::where('is_active', true)->get();
+
         return view('employees.edit', compact('employee', 'departments'));
     }
 
@@ -73,10 +77,10 @@ class EmployeeController extends Controller
     public function update(Request $request, Employee $employee)
     {
         $validated = $request->validate([
-            'employee_code' => 'required|string|unique:employees,employee_code,' . $employee->id,
+            'employee_code' => 'required|string|unique:employees,employee_code,'.$employee->id,
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:employees,email,' . $employee->id,
+            'email' => 'required|email|unique:employees,email,'.$employee->id,
             'phone' => 'required|string|max:20',
             'department_id' => 'required|exists:departments,id',
             'designation' => 'required|string|max:255',
