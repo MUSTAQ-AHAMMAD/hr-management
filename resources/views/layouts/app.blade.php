@@ -60,8 +60,6 @@
                 .w-4 { width: 1rem; }
                 .overflow-x-hidden { overflow-x: hidden; }
                 .overflow-y-auto { overflow-y: auto; }
-                a { color: inherit; text-decoration: none; }
-                button { background: none; border: none; cursor: pointer; }
             </style>
         @endif
     </head>

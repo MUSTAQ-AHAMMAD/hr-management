@@ -44,12 +44,6 @@
                 .h-20 { height: 5rem; }
                 .fill-current { fill: currentColor; }
                 .text-gray-500 { color: rgb(107 114 128); }
-                @media (min-width: 640px) {
-                    .sm\:justify-center { justify-content: center; }
-                    .sm\:pt-0 { padding-top: 0; }
-                    .sm\:max-w-md { max-width: 28rem; }
-                    .sm\:rounded-lg { border-radius: 0.5rem; }
-                }
             </style>
         @endif
     </head>
