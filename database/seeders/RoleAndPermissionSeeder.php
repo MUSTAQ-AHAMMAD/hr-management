@@ -195,5 +195,110 @@ class RoleAndPermissionSeeder extends Seeder
         foreach ($exitTasks as $taskData) {
             Task::create($taskData);
         }
+
+        // Create sample employees
+        $employees = [
+            [
+                'employee_code' => 'EMP001',
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'email' => 'john.doe@company.com',
+                'phone' => '+1234567894',
+                'department_id' => 1, // IT Department
+                'designation' => 'Senior Software Engineer',
+                'joining_date' => now()->subYears(2),
+                'status' => 'active',
+            ],
+            [
+                'employee_code' => 'EMP002',
+                'first_name' => 'Jane',
+                'last_name' => 'Smith',
+                'email' => 'jane.smith@company.com',
+                'phone' => '+1234567895',
+                'department_id' => 4, // HR Department
+                'designation' => 'HR Manager',
+                'joining_date' => now()->subYears(3),
+                'status' => 'active',
+            ],
+            [
+                'employee_code' => 'EMP003',
+                'first_name' => 'Mike',
+                'last_name' => 'Johnson',
+                'email' => 'mike.johnson@company.com',
+                'phone' => '+1234567896',
+                'department_id' => 3, // Finance Department
+                'designation' => 'Finance Officer',
+                'joining_date' => now()->subYear(),
+                'status' => 'active',
+            ],
+            [
+                'employee_code' => 'EMP004',
+                'first_name' => 'Sarah',
+                'last_name' => 'Williams',
+                'email' => 'sarah.williams@company.com',
+                'phone' => '+1234567897',
+                'department_id' => 2, // Admin Department
+                'designation' => 'Administrative Assistant',
+                'joining_date' => now()->subMonths(6),
+                'status' => 'active',
+            ],
+            [
+                'employee_code' => 'EMP005',
+                'first_name' => 'Robert',
+                'last_name' => 'Brown',
+                'email' => 'robert.brown@company.com',
+                'phone' => '+1234567898',
+                'department_id' => 5, // Operations
+                'designation' => 'Operations Manager',
+                'joining_date' => now()->subYears(4),
+                'status' => 'active',
+            ],
+        ];
+
+        foreach ($employees as $employeeData) {
+            \App\Models\Employee::create($employeeData);
+        }
+
+        // Create sample onboarding requests
+        $onboardingRequest1 = \App\Models\OnboardingRequest::create([
+            'employee_id' => 1, // John Doe
+            'initiated_by' => 2, // Admin User
+            'status' => 'in_progress',
+            'expected_completion_date' => now()->addDays(7),
+            'notes' => 'Standard onboarding process for new software engineer.',
+        ]);
+
+        // Assign onboarding tasks to request 1
+        $onboardingTasks = Task::where('type', 'onboarding')->get();
+        foreach ($onboardingTasks as $task) {
+            $assignee = User::where('department_id', $task->department_id)->first();
+            if ($assignee) {
+                \App\Models\TaskAssignment::create([
+                    'task_id' => $task->id,
+                    'assigned_to' => $assignee->id,
+                    'assignable_type' => \App\Models\OnboardingRequest::class,
+                    'assignable_id' => $onboardingRequest1->id,
+                    'status' => 'pending',
+                    'due_date' => now()->addDays(7),
+                ]);
+            }
+        }
+
+        $onboardingRequest2 = \App\Models\OnboardingRequest::create([
+            'employee_id' => 4, // Sarah Williams
+            'initiated_by' => 2, // Admin User
+            'status' => 'pending',
+            'expected_completion_date' => now()->addDays(14),
+            'notes' => 'Onboarding for administrative assistant.',
+        ]);
+
+        // Create sample exit clearance request
+        $exitRequest = \App\Models\ExitClearanceRequest::create([
+            'employee_id' => 5, // Robert Brown
+            'initiated_by' => 2, // Admin User
+            'status' => 'pending',
+            'exit_date' => now()->addDays(30),
+            'reason' => 'Resignation for better opportunity.',
+        ]);
     }
 }
