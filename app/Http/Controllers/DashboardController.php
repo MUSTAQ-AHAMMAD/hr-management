@@ -62,16 +62,16 @@ class DashboardController extends Controller
         };
 
         $onboardingTrend = OnboardingRequest::selectRaw("{$dateFormat} as month, COUNT(*) as count")
-            ->groupBy('month')
-            ->orderBy('month', 'desc')
+            ->groupBy(DB::raw($dateFormat))
+            ->orderBy(DB::raw($dateFormat), 'desc')
             ->limit(6)
             ->get()
             ->reverse()
             ->values();
 
         $exitTrend = ExitClearanceRequest::selectRaw("{$dateFormat} as month, COUNT(*) as count")
-            ->groupBy('month')
-            ->orderBy('month', 'desc')
+            ->groupBy(DB::raw($dateFormat))
+            ->orderBy(DB::raw($dateFormat), 'desc')
             ->limit(6)
             ->get()
             ->reverse()
