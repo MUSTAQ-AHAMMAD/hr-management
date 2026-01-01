@@ -49,6 +49,12 @@
                         {{ __('Users') }}
                     </x-nav-link>
                     @endcan
+                    
+                    @role('Super Admin')
+                    <x-nav-link :href="route('custom-fields.index')" :active="request()->routeIs('custom-fields.*')" class="text-white hover:text-cobalt-200">
+                        {{ __('Custom Fields') }}
+                    </x-nav-link>
+                    @endrole
                 </div>
             </div>
 
