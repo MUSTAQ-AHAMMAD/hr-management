@@ -277,6 +277,13 @@ For issues, questions, or suggestions, please open an issue on GitHub or contact
 
 ## Changelog
 
+### Version 1.0.1 (January 2026)
+- **Fixed**: Exit clearance PDF generation now properly enabled after all department tasks are completed
+  - Issue: PDF generation button was not appearing after all departments cleared the exit request
+  - Solution: Updated status handling to properly set 'cleared' status when all tasks are completed
+  - Added comprehensive test coverage for exit clearance workflow
+  - Tests verify: status transitions, PDF generation prevention, and PDF generation success
+
 ### Version 1.0.0 (Initial Release)
 - Complete onboarding and exit clearance workflow
 - Multi-role authentication system
