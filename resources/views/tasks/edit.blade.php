@@ -63,7 +63,7 @@
                         <!-- Status -->
                         <div class="mt-6">
                             <label class="flex items-center">
-                                <input type="checkbox" name="is_active" value="1" class="rounded border-gray-300 text-navy-600 shadow-sm focus:ring-navy-500" {{ old('is_active', $task->is_active) ? 'checked' : '' }}>
+                                <input type="checkbox" name="is_active" value="1" class="rounded border-gray-300 text-navy-600 shadow-sm focus:ring-navy-500" @checked(old('is_active', $task->is_active))>
                                 <span class="ms-2 text-sm text-gray-600">{{ __('Active') }}</span>
                             </label>
                             <x-input-error class="mt-2" :messages="$errors->get('is_active')" />
