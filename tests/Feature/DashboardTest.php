@@ -33,6 +33,9 @@ class DashboardTest extends TestCase
         $driver = DB::connection()->getDriverName();
         
         // Test that we can determine the driver
-        $this->assertContains($driver, ['sqlite', 'mysql', 'pgsql', 'mariadb', 'sqlsrv']);
+        $this->assertTrue(
+            in_array($driver, ['sqlite', 'mysql', 'pgsql', 'mariadb', 'sqlsrv']),
+            "Expected driver to be one of the supported databases, got: {$driver}"
+        );
     }
 }
