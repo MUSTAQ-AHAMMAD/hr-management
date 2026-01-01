@@ -45,10 +45,19 @@ class TaskAssignmentController extends Controller
             if ($assignable) {
                 $allCompleted = $assignable->taskAssignments()->where('status', '!=', 'completed')->count() === 0;
                 if ($allCompleted) {
-                    $assignable->update([
-                        'status' => 'completed',
-                        'actual_completion_date' => now(),
-                    ]);
+                    // For ExitClearanceRequest, use 'cleared' status, otherwise 'completed'
+                    $statusToSet = $assignable instanceof \App\Models\ExitClearanceRequest ? 'cleared' : 'completed';
+                    
+                    $updateData = ['status' => $statusToSet];
+                    
+                    // Add clearance_date for ExitClearanceRequest, actual_completion_date for others
+                    if ($assignable instanceof \App\Models\ExitClearanceRequest) {
+                        $updateData['clearance_date'] = now();
+                    } else {
+                        $updateData['actual_completion_date'] = now();
+                    }
+                    
+                    $assignable->update($updateData);
                 }
             }
         }
