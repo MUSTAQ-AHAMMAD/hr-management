@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Department;
 use App\Models\CustomField;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +15,7 @@ class DepartmentController extends Controller
     public function index()
     {
         $departments = Department::withCount('users')->paginate(15);
-        
+
         return view('departments.index', compact('departments'));
     }
 
@@ -28,7 +28,7 @@ class DepartmentController extends Controller
             ->where('is_active', true)
             ->orderBy('order')
             ->get();
-        
+
         return view('departments.create', compact('customFields'));
     }
 
@@ -48,9 +48,9 @@ class DepartmentController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $department = Department::create($validated);
-            
+
             // Handle custom fields if they exist
             if ($request->has('custom_fields')) {
                 foreach ($request->custom_fields as $fieldId => $value) {
@@ -60,14 +60,15 @@ class DepartmentController extends Controller
                     ]);
                 }
             }
-            
+
             DB::commit();
-            
+
             return redirect()->route('departments.index')
                 ->with('success', 'Department created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Failed to create department: ' . $e->getMessage())
+
+            return back()->with('error', 'Failed to create department: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -79,7 +80,7 @@ class DepartmentController extends Controller
     {
         $department->load(['users', 'customFieldValues.customField']);
         $customFieldValues = $department->customFieldValues;
-        
+
         return view('departments.show', compact('department', 'customFieldValues'));
     }
 
@@ -92,9 +93,9 @@ class DepartmentController extends Controller
             ->where('is_active', true)
             ->orderBy('order')
             ->get();
-        
+
         $department->load('customFieldValues');
-        
+
         return view('departments.edit', compact('department', 'customFields'));
     }
 
@@ -104,7 +105,7 @@ class DepartmentController extends Controller
     public function update(Request $request, Department $department)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:departments,name,' . $department->id,
+            'name' => 'required|string|max:255|unique:departments,name,'.$department->id,
             'description' => 'nullable|string',
             'type' => 'required|string|max:255',
             'is_active' => 'boolean',
@@ -114,9 +115,9 @@ class DepartmentController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $department->update($validated);
-            
+
             // Handle custom fields if they exist
             if ($request->has('custom_fields')) {
                 foreach ($request->custom_fields as $fieldId => $value) {
@@ -126,14 +127,15 @@ class DepartmentController extends Controller
                     );
                 }
             }
-            
+
             DB::commit();
-            
+
             return redirect()->route('departments.index')
                 ->with('success', 'Department updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Failed to update department: ' . $e->getMessage())
+
+            return back()->with('error', 'Failed to update department: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -148,13 +150,13 @@ class DepartmentController extends Controller
             if ($department->users()->count() > 0) {
                 return back()->with('error', 'Cannot delete department with assigned users.');
             }
-            
+
             $department->delete();
-            
+
             return redirect()->route('departments.index')
                 ->with('success', 'Department deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete department: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete department: '.$e->getMessage());
         }
     }
 }

@@ -2,14 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use App\Models\User;
 use App\Models\Department;
 use App\Models\Task;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleAndPermissionSeeder extends Seeder
 {
@@ -41,26 +40,26 @@ class RoleAndPermissionSeeder extends Seeder
             'create users',
             'edit users',
             'delete users',
-            
+
             // Employee management
             'view employees',
             'create employees',
             'edit employees',
             'delete employees',
-            
+
             // Department management
             'view departments',
             'create departments',
             'edit departments',
             'delete departments',
-            
+
             // Onboarding management
             'view onboarding',
             'create onboarding',
             'edit onboarding',
             'process onboarding',
             'complete onboarding',
-            
+
             // Exit clearance management
             'view exit-clearance',
             'create exit-clearance',
@@ -68,7 +67,7 @@ class RoleAndPermissionSeeder extends Seeder
             'process exit-clearance',
             'approve exit-clearance',
             'generate clearance-documents',
-            
+
             // Task management
             'view tasks',
             'create tasks',
@@ -76,12 +75,12 @@ class RoleAndPermissionSeeder extends Seeder
             'delete tasks',
             'assign tasks',
             'complete tasks',
-            
+
             // Reports and analytics
             'view reports',
             'view analytics',
             'export reports',
-            
+
             // Notifications
             'send notifications',
             'view all notifications',
@@ -92,7 +91,7 @@ class RoleAndPermissionSeeder extends Seeder
         }
 
         // Create roles and assign permissions
-        
+
         // Super Admin - All permissions
         $superAdmin = Role::create(['name' => 'Super Admin']);
         $superAdmin->givePermissionTo(Permission::all());

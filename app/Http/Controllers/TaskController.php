@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
 use App\Models\Department;
+use App\Models\Task;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
@@ -26,7 +25,7 @@ class TaskController extends Controller
             ->orderBy('department_id')
             ->orderBy('priority')
             ->paginate(15);
-        
+
         return view('tasks.index', compact('tasks'));
     }
 
@@ -38,7 +37,7 @@ class TaskController extends Controller
         $departments = Department::where('is_active', true)
             ->orderBy('name')
             ->get();
-        
+
         return view('tasks.create', compact('departments'));
     }
 
@@ -60,11 +59,11 @@ class TaskController extends Controller
 
         try {
             Task::create($validated);
-            
+
             return redirect()->route('tasks.index')
                 ->with('success', 'Task created successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to create task: ' . $e->getMessage())
+            return back()->with('error', 'Failed to create task: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -75,7 +74,7 @@ class TaskController extends Controller
     public function show(Task $task)
     {
         $task->load('department', 'taskAssignments');
-        
+
         return view('tasks.show', compact('task'));
     }
 
@@ -87,7 +86,7 @@ class TaskController extends Controller
         $departments = Department::where('is_active', true)
             ->orderBy('name')
             ->get();
-        
+
         return view('tasks.edit', compact('task', 'departments'));
     }
 
@@ -109,11 +108,11 @@ class TaskController extends Controller
 
         try {
             $task->update($validated);
-            
+
             return redirect()->route('tasks.index')
                 ->with('success', 'Task updated successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to update task: ' . $e->getMessage())
+            return back()->with('error', 'Failed to update task: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -128,13 +127,13 @@ class TaskController extends Controller
             if ($task->taskAssignments()->whereIn('status', ['pending', 'in_progress'])->count() > 0) {
                 return back()->with('error', 'Cannot delete task with active assignments.');
             }
-            
+
             $task->delete();
-            
+
             return redirect()->route('tasks.index')
                 ->with('success', 'Task deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete task: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete task: '.$e->getMessage());
         }
     }
 }

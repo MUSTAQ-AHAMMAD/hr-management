@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Employee;
-use App\Models\OnboardingRequest;
-use App\Models\ExitClearanceRequest;
-use App\Models\TaskAssignment;
 use App\Models\Department;
+use App\Models\Employee;
+use App\Models\ExitClearanceRequest;
+use App\Models\OnboardingRequest;
+use App\Models\TaskAssignment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +18,8 @@ class DashboardController extends Controller
     private function getDateFormatSql(): string
     {
         $driver = DB::connection()->getDriverName();
-        return match($driver) {
+
+        return match ($driver) {
             'mysql', 'mariadb' => "DATE_FORMAT(created_at, '%Y-%m')",
             'pgsql' => "TO_CHAR(created_at, 'YYYY-MM')",
             'sqlsrv' => "FORMAT(created_at, 'yyyy-MM')",
@@ -30,7 +30,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         // Get statistics based on user role
         $stats = [
             'total_employees' => Employee::count(),
@@ -62,7 +62,7 @@ class DashboardController extends Controller
         // Get department-wise statistics
         $departmentStats = Department::withCount([
             'employees',
-            'tasks'
+            'tasks',
         ])->get();
 
         // Monthly trends for charts
