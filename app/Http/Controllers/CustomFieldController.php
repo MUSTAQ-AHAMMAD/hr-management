@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CustomField;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CustomFieldController extends Controller
 {
@@ -47,7 +48,14 @@ class CustomFieldController extends Controller
         
         $validated = $request->validate([
             'model_type' => 'required|in:Department,User,Employee',
-            'field_name' => 'required|string|max:255|unique:custom_fields,field_name',
+            'field_name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('custom_fields')->where(function ($query) use ($request) {
+                    return $query->where('model_type', $request->model_type);
+                })
+            ],
             'label' => 'required|string|max:255',
             'field_type' => 'required|in:text,textarea,number,date,select,checkbox',
             'options' => 'nullable|string',
@@ -112,7 +120,14 @@ class CustomFieldController extends Controller
         
         $validated = $request->validate([
             'model_type' => 'required|in:Department,User,Employee',
-            'field_name' => 'required|string|max:255|unique:custom_fields,field_name,' . $customField->id,
+            'field_name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('custom_fields')->where(function ($query) use ($request) {
+                    return $query->where('model_type', $request->model_type);
+                })->ignore($customField->id)
+            ],
             'label' => 'required|string|max:255',
             'field_type' => 'required|in:text,textarea,number,date,select,checkbox',
             'options' => 'nullable|string',

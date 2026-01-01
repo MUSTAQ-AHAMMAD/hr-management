@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('custom_fields', function (Blueprint $table) {
             $table->id();
             $table->string('model_type'); // Department, User, Employee, etc.
-            $table->string('field_name')->unique();
+            $table->string('field_name');
             $table->string('label');
             $table->string('field_type'); // text, textarea, number, date, select, checkbox
             $table->json('options')->nullable(); // For select fields
@@ -23,6 +23,9 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->integer('order')->default(0);
             $table->timestamps();
+            
+            // Composite unique constraint for model_type and field_name
+            $table->unique(['model_type', 'field_name']);
         });
 
         Schema::create('custom_field_values', function (Blueprint $table) {
