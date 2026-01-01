@@ -51,7 +51,7 @@ class DashboardController extends Controller
         ])->get();
 
         // Monthly trends for charts
-        $onboardingTrend = OnboardingRequest::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as count')
+        $onboardingTrend = OnboardingRequest::selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
             ->groupBy('month')
             ->orderBy('month', 'desc')
             ->limit(6)
@@ -59,7 +59,7 @@ class DashboardController extends Controller
             ->reverse()
             ->values();
 
-        $exitTrend = ExitClearanceRequest::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as count')
+        $exitTrend = ExitClearanceRequest::selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
             ->groupBy('month')
             ->orderBy('month', 'desc')
             ->limit(6)
