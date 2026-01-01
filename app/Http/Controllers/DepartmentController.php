@@ -40,7 +40,7 @@ class DepartmentController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:departments,name',
             'description' => 'nullable|string',
-            'type' => 'required|in:IT,Admin,Finance,HR,Operations,Other',
+            'type' => 'required|string|max:255',
             'is_active' => 'boolean',
         ]);
 
@@ -106,7 +106,7 @@ class DepartmentController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:departments,name,' . $department->id,
             'description' => 'nullable|string',
-            'type' => 'required|in:IT,Admin,Finance,HR,Operations,Other',
+            'type' => 'required|string|max:255',
             'is_active' => 'boolean',
         ]);
 

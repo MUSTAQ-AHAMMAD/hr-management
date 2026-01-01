@@ -23,15 +23,7 @@
                             <!-- Type -->
                             <div>
                                 <x-input-label for="type" :value="__('Department Type')" />
-                                <select id="type" name="type" class="mt-1 block w-full border-gray-300 focus:border-navy-500 focus:ring-navy-500 rounded-md shadow-sm" required>
-                                    <option value="">Select Type</option>
-                                    <option value="IT" {{ old('type') == 'IT' ? 'selected' : '' }}>IT</option>
-                                    <option value="Admin" {{ old('type') == 'Admin' ? 'selected' : '' }}>Admin</option>
-                                    <option value="Finance" {{ old('type') == 'Finance' ? 'selected' : '' }}>Finance</option>
-                                    <option value="HR" {{ old('type') == 'HR' ? 'selected' : '' }}>HR</option>
-                                    <option value="Operations" {{ old('type') == 'Operations' ? 'selected' : '' }}>Operations</option>
-                                    <option value="Other" {{ old('type') == 'Other' ? 'selected' : '' }}>Other</option>
-                                </select>
+                                <x-text-input id="type" name="type" type="text" class="mt-1 block w-full" :value="old('type')" required placeholder="e.g., IT, Admin, Finance, HR, Operations" />
                                 <x-input-error class="mt-2" :messages="$errors->get('type')" />
                             </div>
                         </div>
