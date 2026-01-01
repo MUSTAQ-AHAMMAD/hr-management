@@ -9,6 +9,7 @@ use App\Models\ExitClearanceRequest;
 use App\Models\TaskAssignment;
 use App\Models\Department;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -51,7 +52,16 @@ class DashboardController extends Controller
         ])->get();
 
         // Monthly trends for charts
-        $onboardingTrend = OnboardingRequest::selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
+        // Use database-agnostic date formatting
+        $driver = DB::connection()->getDriverName();
+        $dateFormat = match($driver) {
+            'mysql', 'mariadb' => "DATE_FORMAT(created_at, '%Y-%m')",
+            'pgsql' => "TO_CHAR(created_at, 'YYYY-MM')",
+            'sqlsrv' => "FORMAT(created_at, 'yyyy-MM')",
+            default => "strftime('%Y-%m', created_at)", // SQLite and others
+        };
+
+        $onboardingTrend = OnboardingRequest::selectRaw("{$dateFormat} as month, COUNT(*) as count")
             ->groupBy('month')
             ->orderBy('month', 'desc')
             ->limit(6)
@@ -59,7 +69,7 @@ class DashboardController extends Controller
             ->reverse()
             ->values();
 
-        $exitTrend = ExitClearanceRequest::selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
+        $exitTrend = ExitClearanceRequest::selectRaw("{$dateFormat} as month, COUNT(*) as count")
             ->groupBy('month')
             ->orderBy('month', 'desc')
             ->limit(6)
