@@ -258,5 +258,47 @@ class RoleAndPermissionSeeder extends Seeder
         foreach ($employees as $employeeData) {
             \App\Models\Employee::create($employeeData);
         }
+
+        // Create sample onboarding requests
+        $onboardingRequest1 = \App\Models\OnboardingRequest::create([
+            'employee_id' => 1, // John Doe
+            'initiated_by' => 2, // Admin User
+            'status' => 'in_progress',
+            'expected_completion_date' => now()->addDays(7),
+            'notes' => 'Standard onboarding process for new software engineer.',
+        ]);
+
+        // Assign onboarding tasks to request 1
+        $onboardingTasks = Task::where('type', 'onboarding')->get();
+        foreach ($onboardingTasks as $task) {
+            $assignee = User::where('department_id', $task->department_id)->first();
+            if ($assignee) {
+                \App\Models\TaskAssignment::create([
+                    'task_id' => $task->id,
+                    'assigned_to' => $assignee->id,
+                    'assignable_type' => \App\Models\OnboardingRequest::class,
+                    'assignable_id' => $onboardingRequest1->id,
+                    'status' => 'pending',
+                    'due_date' => now()->addDays(7),
+                ]);
+            }
+        }
+
+        $onboardingRequest2 = \App\Models\OnboardingRequest::create([
+            'employee_id' => 4, // Sarah Williams
+            'initiated_by' => 2, // Admin User
+            'status' => 'pending',
+            'expected_completion_date' => now()->addDays(14),
+            'notes' => 'Onboarding for administrative assistant.',
+        ]);
+
+        // Create sample exit clearance request
+        $exitRequest = \App\Models\ExitClearanceRequest::create([
+            'employee_id' => 5, // Robert Brown
+            'initiated_by' => 2, // Admin User
+            'status' => 'pending',
+            'exit_date' => now()->addDays(30),
+            'reason' => 'Resignation for better opportunity.',
+        ]);
     }
 }
