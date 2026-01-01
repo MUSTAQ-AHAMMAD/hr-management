@@ -10,6 +10,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskAssignmentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CustomFieldController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,6 +34,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Users
     Route::resource('users', UserController::class);
+
+    // Custom Fields (Super Admin only - authorization checked in controller)
+    Route::resource('custom-fields', CustomFieldController::class);
 
     // Onboarding Requests
     Route::resource('onboarding-requests', OnboardingRequestController::class);
