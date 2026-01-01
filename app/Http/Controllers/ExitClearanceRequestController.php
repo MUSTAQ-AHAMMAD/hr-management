@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Department;
 use App\Models\Employee;
 use App\Models\ExitClearanceRequest;
 use App\Models\Task;
@@ -9,6 +10,7 @@ use App\Models\TaskAssignment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class ExitClearanceRequestController extends Controller
 {
@@ -30,7 +32,7 @@ class ExitClearanceRequestController extends Controller
     public function create()
     {
         $employees = Employee::whereIn('status', ['active', 'inactive'])->get();
-        $departments = \App\Models\Department::where('is_active', true)->get();
+        $departments = Department::where('is_active', true)->get();
 
         return view('exit-clearance-requests.create', compact('employees', 'departments'));
     }
@@ -80,7 +82,7 @@ class ExitClearanceRequestController extends Controller
             ->with('department')
             ->get();
 
-        $departments = \App\Models\Department::where('is_active', true)->get();
+        $departments = Department::where('is_active', true)->get();
 
         return view('exit-clearance-requests.show', compact('exitClearanceRequest', 'availableTasks', 'departments'));
     }
@@ -188,7 +190,7 @@ class ExitClearanceRequestController extends Controller
             return back()->with('error', 'Cannot generate PDF. Please complete all clearance tasks first.');
         }
 
-        $pdf = \PDF::loadView('exit-clearance-requests.pdf', [
+        $pdf = PDF::loadView('exit-clearance-requests.pdf', [
             'exitRequest' => $exitClearanceRequest
         ]);
 
