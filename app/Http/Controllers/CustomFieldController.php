@@ -12,6 +12,11 @@ class CustomFieldController extends Controller
      */
     public function index()
     {
+        // Check if user is Super Admin
+        if (!auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'Only Super Admins can manage custom fields.');
+        }
+        
         $customFields = CustomField::orderBy('model_type')->orderBy('order')->paginate(20);
         
         return view('custom-fields.index', compact('customFields'));
@@ -22,6 +27,11 @@ class CustomFieldController extends Controller
      */
     public function create()
     {
+        // Check if user is Super Admin
+        if (!auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'Only Super Admins can manage custom fields.');
+        }
+        
         return view('custom-fields.create');
     }
 
@@ -30,6 +40,11 @@ class CustomFieldController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if user is Super Admin
+        if (!auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'Only Super Admins can manage custom fields.');
+        }
+        
         $validated = $request->validate([
             'model_type' => 'required|in:Department,User,Employee',
             'field_name' => 'required|string|max:255|unique:custom_fields,field_name',
@@ -64,6 +79,11 @@ class CustomFieldController extends Controller
      */
     public function show(CustomField $customField)
     {
+        // Check if user is Super Admin
+        if (!auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'Only Super Admins can manage custom fields.');
+        }
+        
         return view('custom-fields.show', compact('customField'));
     }
 
@@ -72,6 +92,11 @@ class CustomFieldController extends Controller
      */
     public function edit(CustomField $customField)
     {
+        // Check if user is Super Admin
+        if (!auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'Only Super Admins can manage custom fields.');
+        }
+        
         return view('custom-fields.edit', compact('customField'));
     }
 
@@ -80,6 +105,11 @@ class CustomFieldController extends Controller
      */
     public function update(Request $request, CustomField $customField)
     {
+        // Check if user is Super Admin
+        if (!auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'Only Super Admins can manage custom fields.');
+        }
+        
         $validated = $request->validate([
             'model_type' => 'required|in:Department,User,Employee',
             'field_name' => 'required|string|max:255|unique:custom_fields,field_name,' . $customField->id,
@@ -114,6 +144,11 @@ class CustomFieldController extends Controller
      */
     public function destroy(CustomField $customField)
     {
+        // Check if user is Super Admin
+        if (!auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'Only Super Admins can manage custom fields.');
+        }
+        
         try {
             $customField->delete();
             

@@ -35,10 +35,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Users
     Route::resource('users', UserController::class);
 
-    // Custom Fields (Super Admin only)
-    Route::middleware('role:Super Admin')->group(function () {
-        Route::resource('custom-fields', CustomFieldController::class);
-    });
+    // Custom Fields (Super Admin only - authorization checked in controller)
+    Route::resource('custom-fields', CustomFieldController::class);
 
     // Onboarding Requests
     Route::resource('onboarding-requests', OnboardingRequestController::class);
