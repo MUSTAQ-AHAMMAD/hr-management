@@ -1,190 +1,163 @@
-<nav x-data="{ open: false }" class="bg-navy-900 border-b border-navy-800 shadow-lg">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <span class="text-white text-xl font-bold">HR Management</span>
-                    </a>
-                </div>
-
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-cobalt-200">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    
-                    @can('view employees')
-                    <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" class="text-white hover:text-cobalt-200">
-                        {{ __('Employees') }}
-                    </x-nav-link>
-                    @endcan
-                    
-                    @can('view onboarding')
-                    <x-nav-link :href="route('onboarding-requests.index')" :active="request()->routeIs('onboarding-requests.*')" class="text-white hover:text-cobalt-200">
-                        {{ __('Onboarding') }}
-                    </x-nav-link>
-                    @endcan
-                    
-                    @can('view exit-clearance')
-                    <x-nav-link :href="route('exit-clearance-requests.index')" :active="request()->routeIs('exit-clearance-requests.*')" class="text-white hover:text-cobalt-200">
-                        {{ __('Exit Clearance') }}
-                    </x-nav-link>
-                    @endcan
-                    
-                    <x-nav-link :href="route('my-tasks')" :active="request()->routeIs('my-tasks')" class="text-white hover:text-cobalt-200">
-                        {{ __('My Tasks') }}
-                    </x-nav-link>
-                    
-                    @can('view departments')
-                    <x-nav-link :href="route('departments.index')" :active="request()->routeIs('departments.*')" class="text-white hover:text-cobalt-200">
-                        {{ __('Departments') }}
-                    </x-nav-link>
-                    @endcan
-                    
-                    @can('view users')
-                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')" class="text-white hover:text-cobalt-200">
-                        {{ __('Users') }}
-                    </x-nav-link>
-                    @endcan
-                    
-                    @role('Super Admin')
-                    <x-nav-link :href="route('custom-fields.index')" :active="request()->routeIs('custom-fields.*')" class="text-white hover:text-cobalt-200">
-                        {{ __('Custom Fields') }}
-                    </x-nav-link>
-                    @endrole
-                </div>
-            </div>
-
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <!-- Notifications -->
-                <a href="{{ route('notifications.index') }}" class="relative mr-4 text-white hover:text-cobalt-200 transition-colors duration-150">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                    @if(Auth::user()->notifications()->where('is_read', false)->count() > 0)
-                    <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-cobalt-600 rounded-full shadow-lg">
-                        {{ Auth::user()->notifications()->where('is_read', false)->count() }}
-                    </span>
-                    @endif
-                </a>
-
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white hover:text-cobalt-200 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <div class="px-4 py-2 text-xs text-gray-400">
-                            {{ Auth::user()->getRoleNames()->first() ?? 'User' }}
-                        </div>
-                        
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
-
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-cobalt-200 hover:bg-navy-800 focus:outline-none focus:bg-navy-800 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
+<!-- Sidebar Navigation -->
+<aside x-data="{ open: false }" class="w-64 bg-navy-900 text-white flex-shrink-0 hidden md:flex md:flex-col">
+    <!-- Logo / Brand -->
+    <div class="h-16 flex items-center justify-center border-b border-navy-800">
+        <a href="{{ route('dashboard') }}" class="flex items-center">
+            <svg class="h-8 w-8 text-cobalt-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span class="text-xl font-bold">HR System</span>
+        </a>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-            
+    <!-- Navigation Links -->
+    <nav class="flex-1 overflow-y-auto py-4">
+        <div class="px-3 space-y-1">
+            <!-- Dashboard -->
+            <a href="{{ route('dashboard') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 {{ request()->routeIs('dashboard') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800 hover:text-white' }}">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Dashboard
+            </a>
+
+            <!-- Employees -->
             @can('view employees')
-            <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" class="text-white">
-                {{ __('Employees') }}
-            </x-responsive-nav-link>
+            <a href="{{ route('employees.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 {{ request()->routeIs('employees.*') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800 hover:text-white' }}">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Employees
+            </a>
             @endcan
-            
-            @can('view onboarding')
-            <x-responsive-nav-link :href="route('onboarding-requests.index')" :active="request()->routeIs('onboarding-requests.*')" class="text-white">
-                {{ __('Onboarding') }}
-            </x-responsive-nav-link>
-            @endcan
-            
-            @can('view exit-clearance')
-            <x-responsive-nav-link :href="route('exit-clearance-requests.index')" :active="request()->routeIs('exit-clearance-requests.*')" class="text-white">
-                {{ __('Exit Clearance') }}
-            </x-responsive-nav-link>
-            @endcan
-            
-            <x-responsive-nav-link :href="route('my-tasks')" :active="request()->routeIs('my-tasks')" class="text-white">
-                {{ __('My Tasks') }}
-            </x-responsive-nav-link>
-            
-            @can('view departments')
-            <x-responsive-nav-link :href="route('departments.index')" :active="request()->routeIs('departments.*')" class="text-white">
-                {{ __('Departments') }}
-            </x-responsive-nav-link>
-            @endcan
-            
-            @can('view users')
-            <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')" class="text-white">
-                {{ __('Users') }}
-            </x-responsive-nav-link>
-            @endcan
-        </div>
 
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-navy-800">
-            <div class="px-4">
-                <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-cobalt-200">{{ Auth::user()->email }}</div>
+            <!-- Onboarding -->
+            @can('view onboarding')
+            <a href="{{ route('onboarding-requests.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 {{ request()->routeIs('onboarding-requests.*') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800 hover:text-white' }}">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                Onboarding
+            </a>
+            @endcan
+
+            <!-- Exit Clearance -->
+            @can('view exit-clearance')
+            <a href="{{ route('exit-clearance-requests.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 {{ request()->routeIs('exit-clearance-requests.*') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800 hover:text-white' }}">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Exit Clearance
+            </a>
+            @endcan
+
+            <!-- My Tasks -->
+            <a href="{{ route('my-tasks') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 {{ request()->routeIs('my-tasks') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800 hover:text-white' }}">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                My Tasks
+            </a>
+
+            <!-- Section Divider -->
+            <div class="pt-4 pb-2">
+                <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Management
+                </p>
             </div>
 
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')" class="text-white">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
+            <!-- Departments -->
+            @can('view departments')
+            <a href="{{ route('departments.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 {{ request()->routeIs('departments.*') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800 hover:text-white' }}">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                Departments
+            </a>
+            @endcan
 
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
+            <!-- Users -->
+            @can('view users')
+            <a href="{{ route('users.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 {{ request()->routeIs('users.*') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800 hover:text-white' }}">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Users
+            </a>
+            @endcan
 
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();" class="text-white">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
+            <!-- Custom Fields (Super Admin Only) -->
+            @role('Super Admin')
+            <div class="pt-4 pb-2">
+                <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    System
+                </p>
+            </div>
+            <a href="{{ route('custom-fields.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 {{ request()->routeIs('custom-fields.*') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800 hover:text-white' }}">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Custom Fields
+            </a>
+            @endrole
+        </div>
+    </nav>
+
+    <!-- User Info at Bottom -->
+    <div class="border-t border-navy-800 p-4">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="h-8 w-8 rounded-full bg-cobalt-600 flex items-center justify-center text-white font-medium text-sm">
+                    {{ substr(Auth::user()->name, 0, 1) }}
+                </div>
+            </div>
+            <div class="ml-3 overflow-hidden">
+                <p class="text-sm font-medium text-white truncate">{{ Auth::user()->name }}</p>
+                <p class="text-xs text-gray-400 truncate">{{ Auth::user()->getRoleNames()->first() ?? 'User' }}</p>
             </div>
         </div>
     </div>
-</nav>
+</aside>
+
+<!-- Mobile Sidebar Overlay -->
+<div x-data="{ mobileOpen: false }" class="md:hidden">
+    <!-- Mobile Menu Button -->
+    <div class="fixed top-0 left-0 right-0 h-16 bg-navy-900 z-50 flex items-center justify-between px-4">
+        <button @click="mobileOpen = !mobileOpen" class="text-white p-2">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+        <span class="text-white text-lg font-bold">HR System</span>
+        <div class="w-10"></div> <!-- Spacer for centering -->
+    </div>
+
+    <!-- Mobile Sidebar -->
+    <div x-show="mobileOpen" 
+         @click.away="mobileOpen = false"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 transform -translate-x-full"
+         x-transition:enter-end="opacity-100 transform translate-x-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-x-0"
+         x-transition:leave-end="opacity-0 transform -translate-x-full"
+         class="fixed inset-0 z-40 flex">
+        <div class="w-64 bg-navy-900 text-white overflow-y-auto">
+            <div class="p-4">
+                <!-- Same navigation content as desktop -->
+                <nav class="space-y-1">
+                    <a href="{{ route('dashboard') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg {{ request()->routeIs('dashboard') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800' }}">
+                        Dashboard
+                    </a>
+                    @can('view employees')
+                    <a href="{{ route('employees.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg {{ request()->routeIs('employees.*') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800' }}">
+                        Employees
+                    </a>
+                    @endcan
+                    <!-- Add other mobile links -->
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
