@@ -30,8 +30,9 @@ class ExitClearanceRequestController extends Controller
     public function create()
     {
         $employees = Employee::whereIn('status', ['active', 'inactive'])->get();
+        $departments = \App\Models\Department::where('is_active', true)->get();
 
-        return view('exit-clearance-requests.create', compact('employees'));
+        return view('exit-clearance-requests.create', compact('employees', 'departments'));
     }
 
     /**
@@ -43,6 +44,8 @@ class ExitClearanceRequestController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'exit_date' => 'required|date',
             'reason' => 'nullable|string',
+            'department_ids' => 'nullable|array',
+            'department_ids.*' => 'exists:departments,id',
         ]);
 
         $validated['initiated_by'] = Auth::id();
@@ -50,8 +53,13 @@ class ExitClearanceRequestController extends Controller
 
         $exitRequest = ExitClearanceRequest::create($validated);
 
+        // Auto-assign tasks if departments are selected
+        if (isset($validated['department_ids']) && count($validated['department_ids']) > 0) {
+            $this->autoAssignTasksForDepartments($exitRequest, $validated['department_ids']);
+        }
+
         return redirect()->route('exit-clearance-requests.show', $exitRequest)
-            ->with('success', 'Exit clearance request created successfully. Now assign tasks to complete the clearance.');
+            ->with('success', 'Exit clearance request created successfully.');
     }
 
     /**
@@ -59,9 +67,22 @@ class ExitClearanceRequestController extends Controller
      */
     public function show(ExitClearanceRequest $exitClearanceRequest)
     {
-        $exitClearanceRequest->load(['employee.department', 'initiatedBy', 'taskAssignments.task.department', 'taskAssignments.assignedTo']);
+        $exitClearanceRequest->load([
+            'employee.department',
+            'employee.assets',
+            'initiatedBy',
+            'taskAssignments.task.department',
+            'taskAssignments.assignedTo'
+        ]);
 
-        return view('exit-clearance-requests.show', compact('exitClearanceRequest'));
+        $availableTasks = Task::where('type', 'exit')
+            ->where('is_active', true)
+            ->with('department')
+            ->get();
+
+        $departments = \App\Models\Department::where('is_active', true)->get();
+
+        return view('exit-clearance-requests.show', compact('exitClearanceRequest', 'availableTasks', 'departments'));
     }
 
     /**
@@ -150,7 +171,66 @@ class ExitClearanceRequestController extends Controller
      */
     public function generatePdf(ExitClearanceRequest $exitClearanceRequest)
     {
-        // This would implement PDF generation - simplified for now
-        return back()->with('success', 'PDF generation feature will be implemented.');
+        $exitClearanceRequest->load([
+            'employee.department',
+            'employee.assets',
+            'initiatedBy',
+            'taskAssignments.task.department',
+            'taskAssignments.assignedTo'
+        ]);
+
+        // Check if all tasks are completed
+        $pendingTasks = $exitClearanceRequest->taskAssignments()
+            ->whereIn('status', ['pending', 'in_progress'])
+            ->count();
+
+        if ($pendingTasks > 0) {
+            return back()->with('error', 'Cannot generate PDF. Please complete all clearance tasks first.');
+        }
+
+        $pdf = \PDF::loadView('exit-clearance-requests.pdf', [
+            'exitRequest' => $exitClearanceRequest
+        ]);
+
+        $filename = 'exit_clearance_' . $exitClearanceRequest->employee->employee_code . '_' . now()->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Auto-assign tasks for selected departments.
+     */
+    private function autoAssignTasksForDepartments(ExitClearanceRequest $exitRequest, array $departmentIds)
+    {
+        foreach ($departmentIds as $departmentId) {
+            $tasks = Task::where('department_id', $departmentId)
+                ->where('type', 'exit')
+                ->where('is_active', true)
+                ->get();
+
+            foreach ($tasks as $task) {
+                // Find a user from the task's department to assign to
+                $assignee = User::where('department_id', $task->department_id)
+                    ->whereHas('roles', function ($query) {
+                        $query->whereIn('name', ['Department User', 'Admin', 'Super Admin']);
+                    })
+                    ->first();
+
+                if ($assignee) {
+                    TaskAssignment::create([
+                        'task_id' => $task->id,
+                        'assigned_to' => $assignee->id,
+                        'assignable_type' => ExitClearanceRequest::class,
+                        'assignable_id' => $exitRequest->id,
+                        'status' => 'pending',
+                        'due_date' => $exitRequest->exit_date,
+                    ]);
+                }
+            }
+        }
+
+        if (count($departmentIds) > 0) {
+            $exitRequest->update(['status' => 'in_progress']);
+        }
     }
 }
