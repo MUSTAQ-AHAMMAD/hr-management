@@ -10,11 +10,11 @@
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <!-- Total Employees -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow duration-200">
                     <div class="p-6">
                         <div class="flex items-center">
-                            <div class="flex-shrink-0 bg-primary-100 rounded-md p-3">
-                                <svg class="h-6 w-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex-shrink-0 bg-navy-100 rounded-md p-3">
+                                <svg class="h-6 w-6 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                 </svg>
                             </div>
@@ -27,11 +27,11 @@
                 </div>
 
                 <!-- Active Employees -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow duration-200">
                     <div class="p-6">
                         <div class="flex items-center">
-                            <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
-                                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex-shrink-0 bg-cobalt-100 rounded-md p-3">
+                                <svg class="h-6 w-6 text-cobalt-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
@@ -44,11 +44,11 @@
                 </div>
 
                 <!-- Pending Onboarding -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow duration-200">
                     <div class="p-6">
                         <div class="flex items-center">
-                            <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
-                                <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex-shrink-0 bg-primary-100 rounded-md p-3">
+                                <svg class="h-6 w-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
@@ -61,11 +61,11 @@
                 </div>
 
                 <!-- Pending Exit Clearance -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow duration-200">
                     <div class="p-6">
                         <div class="flex items-center">
-                            <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
-                                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex-shrink-0 bg-navy-100 rounded-md p-3">
+                                <svg class="h-6 w-6 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                 </svg>
                             </div>
@@ -101,14 +101,14 @@
                                     </td>
                                     <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            {{ $taskAssignment->task->type === 'onboarding' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800' }}">
+                                            {{ $taskAssignment->task->type === 'onboarding' ? 'bg-cobalt-100 text-cobalt-800' : 'bg-navy-100 text-navy-800' }}">
                                             {{ ucfirst($taskAssignment->task->type) }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            {{ $taskAssignment->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                               ($taskAssignment->status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800') }}">
+                                            {{ $taskAssignment->status === 'pending' ? 'bg-primary-100 text-primary-800' : 
+                                               ($taskAssignment->status === 'in_progress' ? 'bg-cobalt-100 text-cobalt-800' : 'bg-navy-100 text-navy-800') }}">
                                             {{ ucfirst(str_replace('_', ' ', $taskAssignment->status)) }}
                                         </span>
                                     </td>
@@ -121,7 +121,7 @@
                         </table>
                     </div>
                     <div class="mt-4">
-                        <a href="{{ route('my-tasks') }}" class="text-primary-600 hover:text-primary-900 text-sm font-medium">
+                        <a href="{{ route('my-tasks') }}" class="text-cobalt-600 hover:text-cobalt-800 text-sm font-medium transition-colors duration-150">
                             View All Tasks →
                         </a>
                     </div>
@@ -138,21 +138,21 @@
                         @if($recentOnboarding->count() > 0)
                         <div class="space-y-3">
                             @foreach($recentOnboarding as $request)
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-150">
                                 <div>
                                     <p class="text-sm font-medium text-gray-900">{{ $request->employee->full_name }}</p>
                                     <p class="text-xs text-gray-500">{{ $request->created_at->diffForHumans() }}</p>
                                 </div>
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                    {{ $request->status === 'completed' ? 'bg-green-100 text-green-800' : 
-                                       ($request->status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                    {{ $request->status === 'completed' ? 'bg-navy-100 text-navy-800' : 
+                                       ($request->status === 'in_progress' ? 'bg-cobalt-100 text-cobalt-800' : 'bg-primary-100 text-primary-800') }}">
                                     {{ ucfirst($request->status) }}
                                 </span>
                             </div>
                             @endforeach
                         </div>
                         <div class="mt-4">
-                            <a href="{{ route('onboarding-requests.index') }}" class="text-primary-600 hover:text-primary-900 text-sm font-medium">
+                            <a href="{{ route('onboarding-requests.index') }}" class="text-cobalt-600 hover:text-cobalt-800 text-sm font-medium transition-colors duration-150">
                                 View All →
                             </a>
                         </div>
@@ -169,21 +169,21 @@
                         @if($recentExitClearance->count() > 0)
                         <div class="space-y-3">
                             @foreach($recentExitClearance as $request)
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-150">
                                 <div>
                                     <p class="text-sm font-medium text-gray-900">{{ $request->employee->full_name }}</p>
                                     <p class="text-xs text-gray-500">{{ $request->created_at->diffForHumans() }}</p>
                                 </div>
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                    {{ $request->status === 'cleared' ? 'bg-green-100 text-green-800' : 
-                                       ($request->status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                    {{ $request->status === 'cleared' ? 'bg-navy-100 text-navy-800' : 
+                                       ($request->status === 'in_progress' ? 'bg-cobalt-100 text-cobalt-800' : 'bg-primary-100 text-primary-800') }}">
                                     {{ ucfirst($request->status) }}
                                 </span>
                             </div>
                             @endforeach
                         </div>
                         <div class="mt-4">
-                            <a href="{{ route('exit-clearance-requests.index') }}" class="text-primary-600 hover:text-primary-900 text-sm font-medium">
+                            <a href="{{ route('exit-clearance-requests.index') }}" class="text-cobalt-600 hover:text-cobalt-800 text-sm font-medium transition-colors duration-150">
                                 View All →
                             </a>
                         </div>

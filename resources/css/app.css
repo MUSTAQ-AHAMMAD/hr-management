@@ -2,8 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Blue Color Scheme */
+/* Professional Trustworthy Blue Color Scheme */
+/* Navy, Cobalt, Light Blue with White/Light Grey */
 :root {
+  /* Primary Blue - Light Blue shades for accents */
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
   --color-primary-200: #bfdbfe;
@@ -16,27 +18,29 @@
   --color-primary-900: #1e3a8a;
   --color-primary-950: #172554;
   
-  --color-navy-50: #f0f9ff;
-  --color-navy-100: #e0f2fe;
-  --color-navy-200: #bae6fd;
-  --color-navy-300: #7dd3fc;
-  --color-navy-400: #38bdf8;
-  --color-navy-500: #0ea5e9;
-  --color-navy-600: #0284c7;
-  --color-navy-700: #0369a1;
-  --color-navy-800: #075985;
-  --color-navy-900: #0c4a6e;
-  --color-navy-950: #082f49;
+  /* Navy - Deep professional blues for headers/navigation */
+  --color-navy-50: #f0f4f8;
+  --color-navy-100: #d9e2ec;
+  --color-navy-200: #bcccdc;
+  --color-navy-300: #9fb3c8;
+  --color-navy-400: #829ab1;
+  --color-navy-500: #627d98;
+  --color-navy-600: #486581;
+  --color-navy-700: #334e68;
+  --color-navy-800: #243b53;
+  --color-navy-900: #102a43;
+  --color-navy-950: #0a1f35;
   
-  --color-cobalt-50: #f5f7ff;
-  --color-cobalt-100: #ebf0ff;
-  --color-cobalt-200: #d6e0ff;
-  --color-cobalt-300: #adc2ff;
-  --color-cobalt-400: #7a9cff;
-  --color-cobalt-500: #4c6fff;
-  --color-cobalt-600: #2e4cf5;
-  --color-cobalt-700: #1e3ad1;
-  --color-cobalt-800: #1b31a8;
-  --color-cobalt-900: #1c2d85;
-  --color-cobalt-950: #131d51;
+  /* Cobalt - Medium blue for interactive elements */
+  --color-cobalt-50: #f0f5ff;
+  --color-cobalt-100: #e0ebff;
+  --color-cobalt-200: #c7d7fe;
+  --color-cobalt-300: #a4bcfd;
+  --color-cobalt-400: #8098f9;
+  --color-cobalt-500: #6172f3;
+  --color-cobalt-600: #4c5de7;
+  --color-cobalt-700: #3d4ecc;
+  --color-cobalt-800: #3543a5;
+  --color-cobalt-900: #2e3a82;
+  --color-cobalt-950: #1d2555;
 }
