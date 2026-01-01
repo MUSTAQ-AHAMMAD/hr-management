@@ -12,7 +12,58 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @else
+            <style>
+                /* Basic Tailwind CSS for app layout when Vite is not built */
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                body { font-family: 'Figtree', ui-sans-serif, system-ui, sans-serif; }
+                .font-sans { font-family: 'Figtree', ui-sans-serif, system-ui, sans-serif; }
+                .antialiased { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+                .flex { display: flex; }
+                .flex-1 { flex: 1 1 0%; }
+                .flex-col { flex-direction: column; }
+                .h-screen { height: 100vh; }
+                .bg-gray-100 { background-color: rgb(243 244 246); }
+                .overflow-hidden { overflow: hidden; }
+                .bg-white { background-color: rgb(255 255 255); }
+                .shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+                .border-b { border-bottom-width: 1px; }
+                .border-gray-200 { border-color: rgb(229 231 235); }
+                .z-10 { z-index: 10; }
+                .items-center { align-items: center; }
+                .justify-between { justify-content: space-between; }
+                .h-16 { height: 4rem; }
+                .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+                .space-x-4 > :not(:last-child) { margin-right: 1rem; }
+                .relative { position: relative; }
+                .text-gray-600 { color: rgb(75 85 99); }
+                .h-6 { height: 1.5rem; }
+                .w-6 { width: 1.5rem; }
+                .absolute { position: absolute; }
+                .-top-1 { top: -0.25rem; }
+                .-right-1 { right: -0.25rem; }
+                .inline-flex { display: inline-flex; }
+                .w-5 { width: 1.25rem; }
+                .h-5 { height: 1.25rem; }
+                .text-xs { font-size: 0.75rem; line-height: 1rem; }
+                .font-bold { font-weight: 700; }
+                .text-white { color: rgb(255 255 255); }
+                .bg-red-500 { background-color: rgb(239 68 68); }
+                .rounded-full { border-radius: 9999px; }
+                .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+                .font-medium { font-weight: 500; }
+                .text-gray-700 { color: rgb(55 65 81); }
+                .ml-2 { margin-left: 0.5rem; }
+                .h-4 { height: 1rem; }
+                .w-4 { width: 1rem; }
+                .overflow-x-hidden { overflow-x: hidden; }
+                .overflow-y-auto { overflow-y: auto; }
+                a { color: inherit; text-decoration: none; }
+                button { background: none; border: none; cursor: pointer; }
+            </style>
+        @endif
     </head>
     <body class="font-sans antialiased">
         <div class="flex h-screen bg-gray-100 overflow-hidden">
