@@ -41,6 +41,11 @@ class Employee extends Model
         return $this->hasMany(ExitClearanceRequest::class);
     }
 
+    public function assets(): HasMany
+    {
+        return $this->hasMany(Asset::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";

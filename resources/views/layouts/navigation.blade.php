@@ -96,6 +96,14 @@
             </a>
             @endcan
 
+            <!-- Assets -->
+            <a href="{{ route('assets.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150 {{ request()->routeIs('assets.*') ? 'bg-navy-800 text-white' : 'text-gray-300 hover:bg-navy-800 hover:text-white' }}">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                </svg>
+                Assets
+            </a>
+
             <!-- Custom Fields (Super Admin Only) -->
             @role('Super Admin')
             <div class="pt-4 pb-2">
