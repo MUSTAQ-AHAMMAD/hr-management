@@ -53,6 +53,12 @@ class TaskAssignmentController extends Controller
                     // Add clearance_date for ExitClearanceRequest, actual_completion_date for others
                     if ($assignable instanceof \App\Models\ExitClearanceRequest) {
                         $updateData['clearance_date'] = now();
+                        
+                        // Revoke employee access
+                        $employee = $assignable->employee;
+                        if ($employee && $employee->user) {
+                            $employee->user->update(['status' => 'inactive']);
+                        }
                     } else {
                         $updateData['actual_completion_date'] = now();
                     }
@@ -63,5 +69,43 @@ class TaskAssignmentController extends Controller
         }
 
         return back()->with('success', 'Task status updated successfully.');
+    }
+
+    /**
+     * Partially close a task assignment.
+     */
+    public function partiallyClose(Request $request, TaskAssignment $taskAssignment)
+    {
+        $validated = $request->validate([
+            'partial_closure_reason' => 'required|string',
+            'notify_on_availability' => 'boolean',
+        ]);
+
+        $taskAssignment->update([
+            'is_partially_closed' => true,
+            'partial_closure_date' => now(),
+            'partial_closure_reason' => $validated['partial_closure_reason'],
+            'notify_on_availability' => $validated['notify_on_availability'] ?? false,
+        ]);
+
+        return back()->with('success', 'Task partially closed. It can be reopened when assets are available.');
+    }
+
+    /**
+     * Reopen a partially closed task.
+     */
+    public function reopenTask(Request $request, TaskAssignment $taskAssignment)
+    {
+        if (!$taskAssignment->is_partially_closed) {
+            return back()->with('error', 'This task is not partially closed.');
+        }
+
+        $taskAssignment->update([
+            'is_partially_closed' => false,
+            'partial_closure_date' => null,
+            'partial_closure_reason' => null,
+        ]);
+
+        return back()->with('success', 'Task reopened successfully.');
     }
 }

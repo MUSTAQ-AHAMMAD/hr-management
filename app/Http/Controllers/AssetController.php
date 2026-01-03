@@ -133,4 +133,44 @@ class AssetController extends Controller
 
         return back()->with('success', 'Asset marked as returned successfully.');
     }
+
+    /**
+     * Mark asset as damaged.
+     */
+    public function markAsDamaged(Request $request, Asset $asset)
+    {
+        $validated = $request->validate([
+            'damage_notes' => 'required|string',
+            'depreciation_value' => 'required|numeric|min:0',
+        ]);
+
+        $asset->update([
+            'status' => 'damaged',
+            'return_date' => now(),
+            'damage_notes' => $validated['damage_notes'],
+            'depreciation_value' => $validated['depreciation_value'],
+        ]);
+
+        return back()->with('success', 'Asset marked as damaged with depreciation value recorded.');
+    }
+
+    /**
+     * Mark asset as lost.
+     */
+    public function markAsLost(Request $request, Asset $asset)
+    {
+        $validated = $request->validate([
+            'damage_notes' => 'required|string',
+            'depreciation_value' => 'required|numeric|min:0',
+        ]);
+
+        $asset->update([
+            'status' => 'lost',
+            'return_date' => now(),
+            'damage_notes' => $validated['damage_notes'],
+            'depreciation_value' => $validated['depreciation_value'],
+        ]);
+
+        return back()->with('success', 'Asset marked as lost with depreciation value recorded.');
+    }
 }

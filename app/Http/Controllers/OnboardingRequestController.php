@@ -54,8 +54,26 @@ class OnboardingRequestController extends Controller
 
         $onboardingRequest = OnboardingRequest::create($validated);
 
+        // Create user account for the employee if not already exists
+        $employee = Employee::find($validated['employee_id']);
+        if (!$employee->user_id) {
+            $user = User::create([
+                'name' => $employee->full_name,
+                'email' => $employee->email,
+                'password' => bcrypt('password'), // Default password, should be changed on first login
+                'department_id' => $employee->department_id,
+                'status' => 'active',
+            ]);
+            
+            // Assign Employee role
+            $user->assignRole('Employee');
+            
+            // Link user to employee
+            $employee->update(['user_id' => $user->id]);
+        }
+
         return redirect()->route('onboarding-requests.show', $onboardingRequest)
-            ->with('success', 'Onboarding request created successfully. Now assign tasks to complete the onboarding.');
+            ->with('success', 'Onboarding request created successfully. Employee user account has been created. Now assign tasks to complete the onboarding.');
     }
 
     /**

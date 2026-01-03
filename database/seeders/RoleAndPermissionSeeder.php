@@ -119,6 +119,12 @@ class RoleAndPermissionSeeder extends Seeder
             'view reports',
         ]);
 
+        // Employee Role - Very limited permissions (can only view their own info)
+        $employee = Role::create(['name' => 'Employee']);
+        $employee->givePermissionTo([
+            // Employees can only view their own info - controlled in controllers
+        ]);
+
         // Create default super admin user
         $superAdminUser = User::create([
             'name' => 'Super Admin',

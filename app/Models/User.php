@@ -58,6 +58,11 @@ class User extends Authenticatable
         return $this->belongsTo(Department::class);
     }
 
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
     public function taskAssignments(): HasMany
     {
         return $this->hasMany(TaskAssignment::class, 'assigned_to');
