@@ -28,8 +28,8 @@ class OnboardingWithAssetsTest extends TestCase
         $admin = User::factory()->create();
         $admin->assignRole('Admin');
 
-        // Create department
-        $department = Department::factory()->create();
+        // Use existing department from seeder
+        $department = Department::where('type', 'IT')->first();
 
         // Create employee without user account
         $employee = Employee::factory()->create([
