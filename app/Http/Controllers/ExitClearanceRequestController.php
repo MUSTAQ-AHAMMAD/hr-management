@@ -144,11 +144,20 @@ class ExitClearanceRequestController extends Controller
             $task = Task::find($taskId);
 
             // Find a user from the task's department to assign to
+            // Try Department User first, then Admin, then Super Admin
             $assignee = User::where('department_id', $task->department_id)
                 ->whereHas('roles', function ($query) {
                     $query->whereIn('name', ['Department User', 'Admin', 'Super Admin']);
                 })
                 ->first();
+
+            // If no user found in the specific department, assign to any Admin or Super Admin
+            if (!$assignee) {
+                $assignee = User::whereHas('roles', function ($query) {
+                    $query->whereIn('name', ['Admin', 'Super Admin']);
+                })
+                ->first();
+            }
 
             if ($assignee) {
                 TaskAssignment::create([
@@ -212,11 +221,20 @@ class ExitClearanceRequestController extends Controller
 
             foreach ($tasks as $task) {
                 // Find a user from the task's department to assign to
+                // Try Department User first, then Admin, then Super Admin
                 $assignee = User::where('department_id', $task->department_id)
                     ->whereHas('roles', function ($query) {
                         $query->whereIn('name', ['Department User', 'Admin', 'Super Admin']);
                     })
                     ->first();
+
+                // If no user found in the specific department, assign to any Admin or Super Admin
+                if (!$assignee) {
+                    $assignee = User::whereHas('roles', function ($query) {
+                        $query->whereIn('name', ['Admin', 'Super Admin']);
+                    })
+                    ->first();
+                }
 
                 if ($assignee) {
                     TaskAssignment::create([

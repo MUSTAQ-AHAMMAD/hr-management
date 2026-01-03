@@ -173,28 +173,50 @@
             @if($exitClearanceRequest->status === 'pending' || $availableTasks->whereNotIn('id', $exitClearanceRequest->taskAssignments->pluck('task_id'))->count() > 0)
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Assign Additional Tasks</h3>
+                    <div class="flex items-center mb-4">
+                        <svg class="h-6 w-6 text-cobalt-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <h3 class="text-lg font-semibold text-gray-900">Assign Additional Tasks</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Select tasks from departments that need to complete clearance activities.</p>
                     <form action="{{ route('exit-clearance-requests.assign-tasks', $exitClearanceRequest) }}" method="POST">
                         @csrf
                         <div class="space-y-3 mb-4">
                             @foreach($availableTasks->whereNotIn('id', $exitClearanceRequest->taskAssignments->pluck('task_id'))->groupBy('department.name') as $deptName => $tasks)
-                                <div class="border border-gray-200 rounded-lg p-4">
-                                    <h4 class="font-medium text-gray-900 mb-2">{{ $deptName }}</h4>
-                                    @foreach($tasks as $task)
-                                        <div class="flex items-start mb-2">
-                                            <input type="checkbox" name="task_ids[]" value="{{ $task->id }}" id="task_{{ $task->id }}" class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                            <label for="task_{{ $task->id }}" class="ml-2 text-sm text-gray-700">
-                                                <span class="font-medium">{{ $task->name }}</span>
-                                                @if($task->description)
-                                                    <span class="block text-gray-500">{{ $task->description }}</span>
-                                                @endif
-                                            </label>
-                                        </div>
-                                    @endforeach
+                                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors duration-150">
+                                    <div class="flex items-center mb-3">
+                                        <svg class="h-5 w-5 text-cobalt-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        <h4 class="font-semibold text-gray-900">{{ $deptName }}</h4>
+                                    </div>
+                                    <div class="space-y-2 pl-7">
+                                        @foreach($tasks as $task)
+                                            <div class="flex items-start p-3 bg-white rounded-lg border border-gray-200 hover:border-cobalt-300 transition-colors duration-150">
+                                                <input type="checkbox" name="task_ids[]" value="{{ $task->id }}" id="task_{{ $task->id }}" class="mt-1 rounded border-gray-300 text-cobalt-600 focus:ring-cobalt-500">
+                                                <label for="task_{{ $task->id }}" class="ml-3 text-sm cursor-pointer flex-1">
+                                                    <span class="font-medium text-gray-900">{{ $task->name }}</span>
+                                                    @if($task->description)
+                                                        <span class="block text-gray-500 mt-1">{{ $task->description }}</span>
+                                                    @endif
+                                                    <span class="inline-flex items-center mt-2 text-xs text-gray-500">
+                                                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                        </svg>
+                                                        Priority: {{ $task->priority }}
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <button type="submit" class="inline-flex items-center px-6 py-3 bg-cobalt-600 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest hover:bg-cobalt-700 focus:outline-none focus:ring-2 focus:ring-cobalt-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
+                            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                             Assign Selected Tasks
                         </button>
                     </form>
