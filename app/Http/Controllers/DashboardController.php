@@ -31,6 +31,11 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
+        // Redirect employees to their specific dashboard
+        if ($user->hasRole('Employee')) {
+            return redirect()->route('employee-dashboard');
+        }
+
         // Get statistics based on user role
         $stats = [
             'total_employees' => Employee::count(),

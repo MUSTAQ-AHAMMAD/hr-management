@@ -27,8 +27,8 @@ class ExitClearanceTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('Admin');
 
-        // Create a department
-        $department = Department::factory()->create();
+        // Use existing department from seeder
+        $department = Department::where('type', 'IT')->first();
         $user->update(['department_id' => $department->id]);
 
         // Create an employee
@@ -87,8 +87,8 @@ class ExitClearanceTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('Admin');
 
-        // Create a department
-        $department = Department::factory()->create();
+        // Use existing department from seeder
+        $department = Department::where('type', 'Admin')->first();
         $user->update(['department_id' => $department->id]);
 
         // Create an employee
@@ -158,8 +158,8 @@ class ExitClearanceTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('Admin');
 
-        // Create a department
-        $department = Department::factory()->create();
+        // Use existing department from seeder
+        $department = Department::where('type', 'HR')->first();
         $user->update(['department_id' => $department->id]);
 
         // Create an employee
@@ -207,8 +207,8 @@ class ExitClearanceTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('Admin');
 
-        // Create a department
-        $department = Department::factory()->create();
+        // Use existing department from seeder
+        $department = Department::where('type', 'Finance')->first();
         $user->update(['department_id' => $department->id]);
 
         // Create an employee
