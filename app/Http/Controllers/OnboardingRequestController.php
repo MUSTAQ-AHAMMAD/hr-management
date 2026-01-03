@@ -29,10 +29,12 @@ class OnboardingRequestController extends Controller
      */
     public function create()
     {
-        $employees = Employee::where('status', 'active')
+        $employees = Employee::whereIn('status', ['active', 'onboarding'])
             ->whereDoesntHave('onboardingRequests', function ($query) {
                 $query->where('status', '!=', 'completed');
             })
+            ->with('department')
+            ->orderBy('first_name')
             ->get();
 
         $customFields = \App\Models\CustomField::where('model_type', 'OnboardingRequest')
@@ -52,10 +54,11 @@ class OnboardingRequestController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'expected_completion_date' => 'required|date|after:today',
             'notes' => 'nullable|string',
+            'status' => 'nullable|in:pending,in_progress',
         ]);
 
         $validated['initiated_by'] = Auth::id();
-        $validated['status'] = 'pending';
+        $validated['status'] = $validated['status'] ?? 'pending';
 
         \DB::beginTransaction();
 
