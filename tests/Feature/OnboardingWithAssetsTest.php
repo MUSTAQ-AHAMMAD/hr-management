@@ -28,8 +28,8 @@ class OnboardingWithAssetsTest extends TestCase
         $admin = User::factory()->create();
         $admin->assignRole('Admin');
 
-        // Create department
-        $department = Department::factory()->create();
+        // Use existing department from seeder
+        $department = Department::where('type', 'IT')->first();
 
         // Create employee without user account
         $employee = Employee::factory()->create([
@@ -116,7 +116,8 @@ class OnboardingWithAssetsTest extends TestCase
     public function test_employee_can_accept_asset()
     {
         // Create employee with user account
-        $department = Department::factory()->create();
+        // Use existing department from seeder
+        $department = Department::where('type', 'Operations')->first();
         $employee = Employee::factory()->create(['department_id' => $department->id]);
         $user = User::factory()->create([
             'email' => $employee->email,
