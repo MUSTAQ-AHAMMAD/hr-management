@@ -7,6 +7,7 @@ use App\Models\OnboardingRequest;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\User;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,10 +30,12 @@ class OnboardingRequestController extends Controller
      */
     public function create()
     {
-        $employees = Employee::where('status', 'active')
+        $employees = Employee::whereIn('status', ['active', 'onboarding'])
             ->whereDoesntHave('onboardingRequests', function ($query) {
                 $query->where('status', '!=', 'completed');
             })
+            ->with('department')
+            ->orderBy('first_name')
             ->get();
 
         $customFields = \App\Models\CustomField::where('model_type', 'OnboardingRequest')
@@ -40,7 +43,20 @@ class OnboardingRequestController extends Controller
             ->orderBy('order')
             ->get();
 
-        return view('onboarding-requests.create', compact('employees', 'customFields'));
+        // Get all active departments
+        $departments = Department::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        // Get all active onboarding tasks
+        $onboardingTasks = Task::where('type', 'onboarding')
+            ->where('is_active', true)
+            ->with('department')
+            ->orderBy('department_id')
+            ->orderBy('priority')
+            ->get();
+
+        return view('onboarding-requests.create', compact('employees', 'customFields', 'departments', 'onboardingTasks'));
     }
 
     /**
@@ -52,10 +68,15 @@ class OnboardingRequestController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'expected_completion_date' => 'required|date|after:today',
             'notes' => 'nullable|string',
+            'status' => 'nullable|in:pending,in_progress',
+            'department_ids' => 'nullable|array',
+            'department_ids.*' => 'exists:departments,id',
+            'task_ids' => 'nullable|array',
+            'task_ids.*' => 'exists:tasks,id',
         ]);
 
         $validated['initiated_by'] = Auth::id();
-        $validated['status'] = 'pending';
+        $validated['status'] = $validated['status'] ?? 'pending';
 
         \DB::beginTransaction();
 
@@ -92,10 +113,46 @@ class OnboardingRequestController extends Controller
                 $employee->update(['user_id' => $user->id]);
             }
 
+            // Assign tasks if provided
+            if ($request->has('task_ids') && is_array($request->task_ids) && count($request->task_ids) > 0) {
+                // Fetch all tasks at once to avoid N+1 queries
+                $tasks = Task::whereIn('id', $request->task_ids)->with('department')->get();
+
+                foreach ($tasks as $task) {
+                    // Find a user from the task's department to assign to
+                    $assignee = User::where('department_id', $task->department_id)
+                        ->whereHas('roles', function ($query) {
+                            $query->whereIn('name', ['Department User', 'Admin', 'Super Admin']);
+                        })
+                        ->first();
+
+                    if ($assignee) {
+                        TaskAssignment::create([
+                            'task_id' => $task->id,
+                            'assigned_to' => $assignee->id,
+                            'assignable_type' => OnboardingRequest::class,
+                            'assignable_id' => $onboardingRequest->id,
+                            'status' => 'pending',
+                            'due_date' => $onboardingRequest->expected_completion_date,
+                        ]);
+                    }
+                }
+
+                // Update status to in_progress if tasks were assigned
+                $onboardingRequest->update(['status' => 'in_progress']);
+            }
+
             \DB::commit();
 
+            $message = 'Onboarding request created successfully. Employee user account has been created.';
+            if ($request->has('task_ids') && count($request->task_ids) > 0) {
+                $message .= ' Selected tasks have been assigned to department users.';
+            } else {
+                $message .= ' You can assign tasks from the request details page.';
+            }
+
             return redirect()->route('onboarding-requests.show', $onboardingRequest)
-                ->with('success', 'Onboarding request created successfully. Employee user account has been created. Now assign tasks to complete the onboarding.');
+                ->with('success', $message);
         } catch (\Exception $e) {
             \DB::rollBack();
 
@@ -119,7 +176,10 @@ class OnboardingRequestController extends Controller
      */
     public function edit(OnboardingRequest $onboardingRequest)
     {
-        $employees = Employee::where('status', 'active')->get();
+        $employees = Employee::whereIn('status', ['active', 'onboarding'])
+            ->with('department')
+            ->orderBy('first_name')
+            ->get();
 
         return view('onboarding-requests.edit', compact('onboardingRequest', 'employees'));
     }
