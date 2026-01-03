@@ -166,6 +166,17 @@ class RoleAndPermissionSeeder extends Seeder
         ]);
         $financeUser->assignRole('Department User');
 
+        $adminUser2 = User::create([
+            'name' => 'Admin Manager',
+            'email' => 'admin.manager@hrmanagement.com',
+            'password' => Hash::make('password'),
+            'department_id' => 2, // Admin Department
+            'phone' => '+1234567894',
+            'status' => 'active',
+            'email_verified_at' => now(),
+        ]);
+        $adminUser2->assignRole('Department User');
+
         // Create default tasks for onboarding
         $onboardingTasks = [
             ['name' => 'Provide Laptop', 'description' => 'Assign and configure laptop for new employee', 'type' => 'onboarding', 'department_id' => 1, 'priority' => 1, 'is_active' => true],
