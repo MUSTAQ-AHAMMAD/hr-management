@@ -48,7 +48,7 @@
                                         </svg>
                                         Employee Information
                                     </h4>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                         <div>
                                             <p class="text-xs text-gray-600 font-medium">Department</p>
                                             <p id="display-department" class="text-sm text-gray-900 mt-1">-</p>

@@ -122,7 +122,10 @@ class OnboardingRequestController extends Controller
      */
     public function edit(OnboardingRequest $onboardingRequest)
     {
-        $employees = Employee::where('status', 'active')->get();
+        $employees = Employee::whereIn('status', ['active', 'onboarding'])
+            ->with('department')
+            ->orderBy('first_name')
+            ->get();
 
         return view('onboarding-requests.edit', compact('onboardingRequest', 'employees'));
     }
