@@ -79,6 +79,24 @@
                             <p class="text-base text-gray-900">{{ $onboardingRequest->notes }}</p>
                         </div>
                         @endif
+                        
+                        <!-- Custom Fields Display -->
+                        @if($onboardingRequest->customFieldValues->count() > 0)
+                        @foreach($onboardingRequest->customFieldValues as $fieldValue)
+                        <div>
+                            <p class="text-sm text-gray-500">{{ $fieldValue->customField->label }}</p>
+                            <p class="text-base font-medium text-gray-900">
+                                @if($fieldValue->customField->field_type === 'checkbox')
+                                    {{ $fieldValue->value ? 'Yes' : 'No' }}
+                                @elseif($fieldValue->customField->field_type === 'date')
+                                    {{ \Carbon\Carbon::parse($fieldValue->value)->format('F d, Y') }}
+                                @else
+                                    {{ $fieldValue->value }}
+                                @endif
+                            </p>
+                        </div>
+                        @endforeach
+                        @endif
                     </div>
                 </div>
             </div>

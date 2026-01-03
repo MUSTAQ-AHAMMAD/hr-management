@@ -21,6 +21,7 @@
                                     <option value="Department" {{ old('model_type') == 'Department' ? 'selected' : '' }}>Department</option>
                                     <option value="User" {{ old('model_type') == 'User' ? 'selected' : '' }}>User</option>
                                     <option value="Employee" {{ old('model_type') == 'Employee' ? 'selected' : '' }}>Employee</option>
+                                    <option value="OnboardingRequest" {{ old('model_type') == 'OnboardingRequest' ? 'selected' : '' }}>Onboarding Request</option>
                                 </select>
                                 <p class="mt-1 text-sm text-gray-500">Which form should this field appear on?</p>
                                 <x-input-error class="mt-2" :messages="$errors->get('model_type')" />
