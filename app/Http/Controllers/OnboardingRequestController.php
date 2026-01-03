@@ -7,6 +7,7 @@ use App\Models\OnboardingRequest;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\User;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -43,12 +44,12 @@ class OnboardingRequestController extends Controller
             ->get();
 
         // Get all active departments
-        $departments = \App\Models\Department::where('is_active', true)
+        $departments = Department::where('is_active', true)
             ->orderBy('name')
             ->get();
 
         // Get all active onboarding tasks
-        $onboardingTasks = \App\Models\Task::where('type', 'onboarding')
+        $onboardingTasks = Task::where('type', 'onboarding')
             ->where('is_active', true)
             ->with('department')
             ->orderBy('department_id')
@@ -114,27 +115,26 @@ class OnboardingRequestController extends Controller
 
             // Assign tasks if provided
             if ($request->has('task_ids') && is_array($request->task_ids) && count($request->task_ids) > 0) {
-                foreach ($request->task_ids as $taskId) {
-                    $task = Task::find($taskId);
+                // Fetch all tasks at once to avoid N+1 queries
+                $tasks = Task::whereIn('id', $request->task_ids)->with('department')->get();
 
-                    if ($task) {
-                        // Find a user from the task's department to assign to
-                        $assignee = User::where('department_id', $task->department_id)
-                            ->whereHas('roles', function ($query) {
-                                $query->whereIn('name', ['Department User', 'Admin', 'Super Admin']);
-                            })
-                            ->first();
+                foreach ($tasks as $task) {
+                    // Find a user from the task's department to assign to
+                    $assignee = User::where('department_id', $task->department_id)
+                        ->whereHas('roles', function ($query) {
+                            $query->whereIn('name', ['Department User', 'Admin', 'Super Admin']);
+                        })
+                        ->first();
 
-                        if ($assignee) {
-                            TaskAssignment::create([
-                                'task_id' => $taskId,
-                                'assigned_to' => $assignee->id,
-                                'assignable_type' => OnboardingRequest::class,
-                                'assignable_id' => $onboardingRequest->id,
-                                'status' => 'pending',
-                                'due_date' => $onboardingRequest->expected_completion_date,
-                            ]);
-                        }
+                    if ($assignee) {
+                        TaskAssignment::create([
+                            'task_id' => $task->id,
+                            'assigned_to' => $assignee->id,
+                            'assignable_type' => OnboardingRequest::class,
+                            'assignable_id' => $onboardingRequest->id,
+                            'status' => 'pending',
+                            'due_date' => $onboardingRequest->expected_completion_date,
+                        ]);
                     }
                 }
 

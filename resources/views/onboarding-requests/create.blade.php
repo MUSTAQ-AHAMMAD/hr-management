@@ -166,7 +166,7 @@
                                                     value="{{ $task->id }}" 
                                                     class="mt-1 rounded border-gray-300 text-navy-600 focus:ring-navy-500 task-checkbox"
                                                     data-department-id="{{ $department->id }}"
-                                                    {{ old('task_ids') && in_array($task->id, old('task_ids', [])) ? 'checked' : 'checked' }}>
+                                                    checked>
                                                 <span class="ml-2 text-sm flex-1">
                                                     <strong class="text-gray-900">{{ $task->name }}</strong>
                                                     <span class="text-gray-600"> - {{ $task->description }}</span>
