@@ -110,10 +110,9 @@
                 .font-medium { font-weight: 500; }
                 .relative { position: relative; }
                 .z-10 { z-index: 10; }
-                .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-from), var(--tw-gradient-to)); }
-                .from-primary-500 { --tw-gradient-from: var(--color-primary-500); }
-                .via-cobalt-600 { --tw-gradient-via: var(--color-cobalt-600); }
-                .to-navy-800 { --tw-gradient-to: var(--color-navy-800); }
+                .from-primary-500.via-cobalt-600.to-navy-800.bg-gradient-to-br { 
+                    background-image: linear-gradient(to bottom right, var(--color-primary-500), var(--color-cobalt-600), var(--color-navy-800)); 
+                }
                 @media (min-width: 640px) {
                     .sm\:max-w-md { max-width: 28rem; }
                     .sm\:px-10 { padding-left: 2.5rem; padding-right: 2.5rem; }

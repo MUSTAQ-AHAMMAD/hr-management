@@ -125,9 +125,9 @@
                 
                 /* Gradient Classes */
                 .gradient-navy { background: linear-gradient(135deg, var(--color-navy-800) 0%, var(--color-navy-900) 100%); }
-                .from-primary-500 { --tw-gradient-from: var(--color-primary-500); }
-                .to-cobalt-600 { --tw-gradient-to: var(--color-cobalt-600); }
-                .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-from, transparent), var(--tw-gradient-to, transparent)); }
+                .from-primary-500.to-cobalt-600.bg-gradient-to-r { 
+                    background-image: linear-gradient(to right, var(--color-primary-500), var(--color-cobalt-600)); 
+                }
                 
                 /* Media queries for responsive design */
                 @media (min-width: 768px) {
