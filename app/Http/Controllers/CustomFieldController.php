@@ -47,7 +47,7 @@ class CustomFieldController extends Controller
         }
 
         $validated = $request->validate([
-            'model_type' => 'required|in:Department,User,Employee',
+            'model_type' => 'required|in:Department,User,Employee,OnboardingRequest',
             'field_name' => [
                 'required',
                 'string',
@@ -119,7 +119,7 @@ class CustomFieldController extends Controller
         }
 
         $validated = $request->validate([
-            'model_type' => 'required|in:Department,User,Employee',
+            'model_type' => 'required|in:Department,User,Employee,OnboardingRequest',
             'field_name' => [
                 'required',
                 'string',

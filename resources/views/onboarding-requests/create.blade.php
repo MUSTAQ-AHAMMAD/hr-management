@@ -63,6 +63,49 @@
                             </div>
                         </div>
 
+                        <!-- Custom Fields Section -->
+                        @if(isset($customFields) && $customFields->count() > 0)
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
+                            
+                            <div class="grid grid-cols-1 gap-6">
+                                @foreach($customFields as $field)
+                                <div>
+                                    <x-input-label for="custom_field_{{ $field->id }}" :value="$field->label" />
+                                    
+                                    @if($field->field_type === 'text')
+                                        <x-text-input id="custom_field_{{ $field->id }}" name="custom_fields[{{ $field->id }}]" type="text" class="mt-1 block w-full" :value="old('custom_fields.' . $field->id)" :required="$field->is_required" />
+                                    @elseif($field->field_type === 'textarea')
+                                        <textarea id="custom_field_{{ $field->id }}" name="custom_fields[{{ $field->id }}]" rows="3" class="mt-1 block w-full border-gray-300 focus:border-cobalt-500 focus:ring-cobalt-500 rounded-md shadow-sm" {{ $field->is_required ? 'required' : '' }}>{{ old('custom_fields.' . $field->id) }}</textarea>
+                                    @elseif($field->field_type === 'number')
+                                        <x-text-input id="custom_field_{{ $field->id }}" name="custom_fields[{{ $field->id }}]" type="number" class="mt-1 block w-full" :value="old('custom_fields.' . $field->id)" :required="$field->is_required" />
+                                    @elseif($field->field_type === 'date')
+                                        <x-text-input id="custom_field_{{ $field->id }}" name="custom_fields[{{ $field->id }}]" type="date" class="mt-1 block w-full" :value="old('custom_fields.' . $field->id)" :required="$field->is_required" />
+                                    @elseif($field->field_type === 'select')
+                                        <select id="custom_field_{{ $field->id }}" name="custom_fields[{{ $field->id }}]" class="mt-1 block w-full border-gray-300 focus:border-cobalt-500 focus:ring-cobalt-500 rounded-md shadow-sm" {{ $field->is_required ? 'required' : '' }}>
+                                            <option value="">Select {{ $field->label }}</option>
+                                            @if(is_array($field->options))
+                                                @foreach($field->options as $option)
+                                                    <option value="{{ $option }}" {{ old('custom_fields.' . $field->id) == $option ? 'selected' : '' }}>{{ $option }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    @elseif($field->field_type === 'checkbox')
+                                        <label class="flex items-center mt-2">
+                                            <input type="checkbox" name="custom_fields[{{ $field->id }}]" value="1" class="rounded border-gray-300 text-cobalt-600 shadow-sm focus:ring-cobalt-500" {{ old('custom_fields.' . $field->id) ? 'checked' : '' }}>
+                                            <span class="ms-2 text-sm text-gray-600">{{ $field->label }}</span>
+                                        </label>
+                                    @endif
+                                    
+                                    @if($field->help_text)
+                                        <p class="mt-1 text-sm text-gray-500">{{ $field->help_text }}</p>
+                                    @endif
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="flex items-center justify-end mt-6 space-x-3">
                             <a href="{{ route('onboarding-requests.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 Cancel

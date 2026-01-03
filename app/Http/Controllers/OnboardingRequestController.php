@@ -35,7 +35,12 @@ class OnboardingRequestController extends Controller
             })
             ->get();
 
-        return view('onboarding-requests.create', compact('employees'));
+        $customFields = \App\Models\CustomField::where('model_type', 'OnboardingRequest')
+            ->where('is_active', true)
+            ->orderBy('order')
+            ->get();
+
+        return view('onboarding-requests.create', compact('employees', 'customFields'));
     }
 
     /**
@@ -52,28 +57,51 @@ class OnboardingRequestController extends Controller
         $validated['initiated_by'] = Auth::id();
         $validated['status'] = 'pending';
 
-        $onboardingRequest = OnboardingRequest::create($validated);
+        \DB::beginTransaction();
 
-        // Create user account for the employee if not already exists
-        $employee = Employee::find($validated['employee_id']);
-        if (!$employee->user_id) {
-            $user = User::create([
-                'name' => $employee->full_name,
-                'email' => $employee->email,
-                'password' => bcrypt('password'), // Default password, should be changed on first login
-                'department_id' => $employee->department_id,
-                'status' => 'active',
-            ]);
-            
-            // Assign Employee role
-            $user->assignRole('Employee');
-            
-            // Link user to employee
-            $employee->update(['user_id' => $user->id]);
+        try {
+            $onboardingRequest = OnboardingRequest::create($validated);
+
+            // Handle custom fields if they exist
+            if ($request->has('custom_fields')) {
+                foreach ($request->custom_fields as $fieldId => $value) {
+                    if ($value !== null && $value !== '') {
+                        $onboardingRequest->customFieldValues()->create([
+                            'custom_field_id' => $fieldId,
+                            'value' => $value,
+                        ]);
+                    }
+                }
+            }
+
+            // Create user account for the employee if not already exists
+            $employee = Employee::find($validated['employee_id']);
+            if (!$employee->user_id) {
+                $user = User::create([
+                    'name' => $employee->full_name,
+                    'email' => $employee->email,
+                    'password' => bcrypt('password'), // Default password, should be changed on first login
+                    'department_id' => $employee->department_id,
+                    'status' => 'active',
+                ]);
+                
+                // Assign Employee role
+                $user->assignRole('Employee');
+                
+                // Link user to employee
+                $employee->update(['user_id' => $user->id]);
+            }
+
+            \DB::commit();
+
+            return redirect()->route('onboarding-requests.show', $onboardingRequest)
+                ->with('success', 'Onboarding request created successfully. Employee user account has been created. Now assign tasks to complete the onboarding.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+
+            return back()->with('error', 'Failed to create onboarding request: '.$e->getMessage())
+                ->withInput();
         }
-
-        return redirect()->route('onboarding-requests.show', $onboardingRequest)
-            ->with('success', 'Onboarding request created successfully. Employee user account has been created. Now assign tasks to complete the onboarding.');
     }
 
     /**
@@ -81,7 +109,7 @@ class OnboardingRequestController extends Controller
      */
     public function show(OnboardingRequest $onboardingRequest)
     {
-        $onboardingRequest->load(['employee.department', 'initiatedBy', 'taskAssignments.task.department', 'taskAssignments.assignedTo']);
+        $onboardingRequest->load(['employee.department', 'initiatedBy', 'taskAssignments.task.department', 'taskAssignments.assignedTo', 'customFieldValues.customField']);
 
         return view('onboarding-requests.show', compact('onboardingRequest'));
     }

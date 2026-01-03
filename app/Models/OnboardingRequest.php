@@ -36,4 +36,9 @@ class OnboardingRequest extends Model
     {
         return $this->morphMany(TaskAssignment::class, 'assignable');
     }
+
+    public function customFieldValues(): MorphMany
+    {
+        return $this->morphMany(CustomFieldValue::class, 'model');
+    }
 }
