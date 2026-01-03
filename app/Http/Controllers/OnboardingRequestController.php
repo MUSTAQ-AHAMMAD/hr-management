@@ -42,7 +42,20 @@ class OnboardingRequestController extends Controller
             ->orderBy('order')
             ->get();
 
-        return view('onboarding-requests.create', compact('employees', 'customFields'));
+        // Get all active departments
+        $departments = \App\Models\Department::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        // Get all active onboarding tasks
+        $onboardingTasks = \App\Models\Task::where('type', 'onboarding')
+            ->where('is_active', true)
+            ->with('department')
+            ->orderBy('department_id')
+            ->orderBy('priority')
+            ->get();
+
+        return view('onboarding-requests.create', compact('employees', 'customFields', 'departments', 'onboardingTasks'));
     }
 
     /**
@@ -55,6 +68,10 @@ class OnboardingRequestController extends Controller
             'expected_completion_date' => 'required|date|after:today',
             'notes' => 'nullable|string',
             'status' => 'nullable|in:pending,in_progress',
+            'department_ids' => 'nullable|array',
+            'department_ids.*' => 'exists:departments,id',
+            'task_ids' => 'nullable|array',
+            'task_ids.*' => 'exists:tasks,id',
         ]);
 
         $validated['initiated_by'] = Auth::id();
@@ -95,10 +112,47 @@ class OnboardingRequestController extends Controller
                 $employee->update(['user_id' => $user->id]);
             }
 
+            // Assign tasks if provided
+            if ($request->has('task_ids') && is_array($request->task_ids) && count($request->task_ids) > 0) {
+                foreach ($request->task_ids as $taskId) {
+                    $task = Task::find($taskId);
+
+                    if ($task) {
+                        // Find a user from the task's department to assign to
+                        $assignee = User::where('department_id', $task->department_id)
+                            ->whereHas('roles', function ($query) {
+                                $query->whereIn('name', ['Department User', 'Admin', 'Super Admin']);
+                            })
+                            ->first();
+
+                        if ($assignee) {
+                            TaskAssignment::create([
+                                'task_id' => $taskId,
+                                'assigned_to' => $assignee->id,
+                                'assignable_type' => OnboardingRequest::class,
+                                'assignable_id' => $onboardingRequest->id,
+                                'status' => 'pending',
+                                'due_date' => $onboardingRequest->expected_completion_date,
+                            ]);
+                        }
+                    }
+                }
+
+                // Update status to in_progress if tasks were assigned
+                $onboardingRequest->update(['status' => 'in_progress']);
+            }
+
             \DB::commit();
 
+            $message = 'Onboarding request created successfully. Employee user account has been created.';
+            if ($request->has('task_ids') && count($request->task_ids) > 0) {
+                $message .= ' Selected tasks have been assigned to department users.';
+            } else {
+                $message .= ' You can assign tasks from the request details page.';
+            }
+
             return redirect()->route('onboarding-requests.show', $onboardingRequest)
-                ->with('success', 'Onboarding request created successfully. Employee user account has been created. Now assign tasks to complete the onboarding.');
+                ->with('success', $message);
         } catch (\Exception $e) {
             \DB::rollBack();
 

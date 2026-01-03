@@ -116,6 +116,87 @@
                             </div>
                         </div>
 
+                        <!-- Department and Task Selection Section -->
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <div class="mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                    <svg class="h-5 w-5 text-cobalt-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                    </svg>
+                                    Select Departments & Tasks for Onboarding
+                                </h3>
+                                <p class="text-sm text-gray-600 mt-1">Choose which departments will be involved in the onboarding process and select their specific tasks.</p>
+                            </div>
+
+                            <div class="space-y-4">
+                                @foreach($departments as $department)
+                                    @php
+                                        $departmentTasks = $onboardingTasks->where('department_id', $department->id);
+                                    @endphp
+                                    @if($departmentTasks->count() > 0)
+                                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 hover:border-cobalt-300 transition-all duration-150">
+                                        <div class="flex items-start mb-3">
+                                            <input type="checkbox" 
+                                                name="department_ids[]" 
+                                                value="{{ $department->id }}" 
+                                                id="dept_{{ $department->id }}" 
+                                                class="mt-1 rounded border-gray-300 text-cobalt-600 focus:ring-cobalt-500 department-checkbox"
+                                                data-department-id="{{ $department->id }}"
+                                                onchange="toggleDepartmentTasks({{ $department->id }})">
+                                            <label for="dept_{{ $department->id }}" class="ml-3 flex-1 cursor-pointer">
+                                                <span class="font-semibold text-gray-900 flex items-center">
+                                                    <svg class="h-4 w-4 mr-2 text-cobalt-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                    </svg>
+                                                    {{ $department->name }}
+                                                </span>
+                                                @if($department->description)
+                                                    <span class="block text-gray-500 text-sm mt-1">{{ $department->description }}</span>
+                                                @endif
+                                            </label>
+                                        </div>
+
+                                        <!-- Department Tasks -->
+                                        <div id="tasks_{{ $department->id }}" class="ml-7 space-y-2 hidden">
+                                            <p class="text-xs text-gray-600 font-medium mb-2">Select tasks for this department:</p>
+                                            @foreach($departmentTasks as $task)
+                                            <label class="flex items-start p-2 bg-white rounded border border-gray-200 hover:bg-blue-50 cursor-pointer">
+                                                <input type="checkbox" 
+                                                    name="task_ids[]" 
+                                                    value="{{ $task->id }}" 
+                                                    class="mt-1 rounded border-gray-300 text-navy-600 focus:ring-navy-500 task-checkbox"
+                                                    data-department-id="{{ $department->id }}"
+                                                    {{ old('task_ids') && in_array($task->id, old('task_ids', [])) ? 'checked' : 'checked' }}>
+                                                <span class="ml-2 text-sm flex-1">
+                                                    <strong class="text-gray-900">{{ $task->name }}</strong>
+                                                    <span class="text-gray-600"> - {{ $task->description }}</span>
+                                                    @if($task->priority)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 ml-2">
+                                                            Priority {{ $task->priority }}
+                                                        </span>
+                                                    @endif
+                                                </span>
+                                            </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
+                                @endforeach
+                            </div>
+
+                            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p class="text-sm text-blue-900 flex items-start">
+                                    <svg class="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Check the departments to include in the onboarding process. Tasks are automatically selected but can be unchecked if not needed. Tasks will be assigned to department users upon creation.</span>
+                                </p>
+                            </div>
+                            
+                            <x-input-error class="mt-2" :messages="$errors->get('department_ids')" />
+                            <x-input-error class="mt-2" :messages="$errors->get('task_ids')" />
+                        </div>
+
                         <!-- Custom Fields Section -->
                         @if(isset($customFields) && $customFields->count() > 0)
                         <div class="mt-6 pt-6 border-t border-gray-200">
@@ -194,6 +275,28 @@
             }
         }
 
+        function toggleDepartmentTasks(departmentId) {
+            const departmentCheckbox = document.getElementById('dept_' + departmentId);
+            const tasksDiv = document.getElementById('tasks_' + departmentId);
+            const taskCheckboxes = tasksDiv.querySelectorAll('.task-checkbox');
+            
+            if (departmentCheckbox.checked) {
+                // Show tasks section
+                tasksDiv.classList.remove('hidden');
+                // Check all tasks by default
+                taskCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            } else {
+                // Hide tasks section
+                tasksDiv.classList.add('hidden');
+                // Uncheck all tasks
+                taskCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            }
+        }
+
         // Set min date for expected completion date to tomorrow
         document.addEventListener('DOMContentLoaded', function() {
             const dateInput = document.getElementById('expected_completion_date');
@@ -201,6 +304,13 @@
             tomorrow.setDate(tomorrow.getDate() + 1);
             const minDate = tomorrow.toISOString().split('T')[0];
             dateInput.setAttribute('min', minDate);
+
+            // Initialize department checkboxes based on old input or default
+            document.querySelectorAll('.department-checkbox').forEach(checkbox => {
+                if (checkbox.checked) {
+                    toggleDepartmentTasks(checkbox.dataset.departmentId);
+                }
+            });
         });
     </script>
 </x-app-layout>
