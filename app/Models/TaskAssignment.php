@@ -18,11 +18,18 @@ class TaskAssignment extends Model
         'completed_date',
         'notes',
         'rejection_reason',
+        'is_partially_closed',
+        'partial_closure_reason',
+        'partial_closure_date',
+        'notify_on_availability',
     ];
 
     protected $casts = [
         'due_date' => 'date',
         'completed_date' => 'date',
+        'partial_closure_date' => 'date',
+        'is_partially_closed' => 'boolean',
+        'notify_on_availability' => 'boolean',
     ];
 
     public function task(): BelongsTo
@@ -38,5 +45,10 @@ class TaskAssignment extends Model
     public function assignable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function assets()
+    {
+        return $this->hasMany(Asset::class);
     }
 }

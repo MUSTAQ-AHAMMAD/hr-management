@@ -22,6 +22,7 @@ class Employee extends Model
         'joining_date',
         'exit_date',
         'status',
+        'user_id',
     ];
 
     protected $casts = [
@@ -32,6 +33,11 @@ class Employee extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function onboardingRequests(): HasMany

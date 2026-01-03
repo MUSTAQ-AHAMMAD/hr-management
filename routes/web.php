@@ -22,6 +22,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Employee Dashboard (for employees with limited access)
+    Route::get('/employee-dashboard', [\App\Http\Controllers\EmployeeDashboardController::class, 'index'])->name('employee-dashboard');
+    Route::post('/employee-dashboard/assets/{asset}/accept', [\App\Http\Controllers\EmployeeDashboardController::class, 'acceptAsset'])->name('employee-dashboard.accept-asset');
+    Route::post('/employee-dashboard/assets/{asset}/reject', [\App\Http\Controllers\EmployeeDashboardController::class, 'rejectAsset'])->name('employee-dashboard.reject-asset');
+
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -51,12 +56,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Assets
     Route::resource('assets', AssetController::class);
     Route::post('assets/{asset}/mark-returned', [AssetController::class, 'markAsReturned'])->name('assets.mark-returned');
+    Route::post('assets/{asset}/mark-damaged', [AssetController::class, 'markAsDamaged'])->name('assets.mark-damaged');
+    Route::post('assets/{asset}/mark-lost', [AssetController::class, 'markAsLost'])->name('assets.mark-lost');
 
     // Tasks
     Route::resource('tasks', TaskController::class);
 
     // Task Assignments
     Route::post('task-assignments/{taskAssignment}/update-status', [TaskAssignmentController::class, 'updateStatus'])->name('task-assignments.update-status');
+    Route::post('task-assignments/{taskAssignment}/partially-close', [TaskAssignmentController::class, 'partiallyClose'])->name('task-assignments.partially-close');
+    Route::post('task-assignments/{taskAssignment}/reopen', [TaskAssignmentController::class, 'reopenTask'])->name('task-assignments.reopen');
     Route::get('my-tasks', [TaskAssignmentController::class, 'myTasks'])->name('my-tasks');
 
     // Notifications

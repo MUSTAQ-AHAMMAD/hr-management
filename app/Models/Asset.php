@@ -18,11 +18,19 @@ class Asset extends Model
         'return_date',
         'status',
         'return_notes',
+        'acceptance_status',
+        'depreciation_value',
+        'damage_notes',
+        'acceptance_date',
+        'task_assignment_id',
+        'department_id',
     ];
 
     protected $casts = [
         'assigned_date' => 'date',
         'return_date' => 'date',
+        'acceptance_date' => 'date',
+        'depreciation_value' => 'decimal:2',
     ];
 
     public function employee(): BelongsTo
@@ -33,5 +41,15 @@ class Asset extends Model
     public function assignedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_by');
+    }
+
+    public function taskAssignment(): BelongsTo
+    {
+        return $this->belongsTo(TaskAssignment::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 }
