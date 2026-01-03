@@ -64,21 +64,25 @@
         @endif
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col justify-center items-center pt-6 pb-6 px-6">
-            <div class="w-full max-w-md">
+        <div class="min-h-screen flex flex-col justify-center items-center pt-6 pb-6 px-6 bg-gradient-to-br from-primary-500 via-cobalt-600 to-navy-800 relative overflow-hidden">
+            <!-- Animated background circles -->
+            <div class="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+            <div class="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
+            
+            <div class="w-full max-w-md relative z-10">
                 <!-- Logo/Brand Section -->
                 <div class="text-center mb-8">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-lg mb-4">
-                        <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-2xl mb-4 transform hover:scale-110 transition-transform duration-300">
+                        <svg class="w-12 h-12 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <h1 class="text-3xl font-bold text-white mb-2">HR Management</h1>
-                    <p class="text-white text-sm">Employee Lifecycle Management System</p>
+                    <h1 class="text-4xl font-bold text-white mb-2 drop-shadow-lg">HR Management</h1>
+                    <p class="text-white/90 text-sm font-medium">Employee Lifecycle Management System</p>
                 </div>
 
                 <!-- Card -->
-                <div class="bg-white shadow-2xl overflow-hidden rounded-2xl">
+                <div class="bg-white/95 backdrop-blur-xl shadow-2xl overflow-hidden rounded-3xl border border-white/20">
                     <div class="px-8 py-10 sm:px-10 sm:py-12">
                         {{ $slot }}
                     </div>
@@ -86,7 +90,7 @@
 
                 <!-- Footer -->
                 <div class="mt-6 text-center">
-                    <p class="text-white text-sm">
+                    <p class="text-white/80 text-sm drop-shadow">
                         © {{ date('Y') }} HR Management System. All rights reserved.
                     </p>
                 </div>
