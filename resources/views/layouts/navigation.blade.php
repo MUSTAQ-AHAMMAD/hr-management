@@ -53,13 +53,31 @@
         </a>
         @endcan
 
-        <!-- My Tasks -->
-        <a href="{{ route('my-tasks') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 {{ request()->routeIs('my-tasks') ? 'bg-gradient-to-r from-primary-500 to-cobalt-600 text-white shadow-lg scale-105' : 'text-gray-300 hover:bg-white/10 hover:text-white hover:scale-105' }}">
-            <svg class="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-            My Tasks
-        </a>
+        <!-- My Tasks with Submenu -->
+        <div x-data="{ open: {{ request()->routeIs('my-tasks*') ? 'true' : 'false' }} }">
+            <button @click="open = !open" class="group flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 {{ request()->routeIs('my-tasks*') ? 'bg-gradient-to-r from-primary-500 to-cobalt-600 text-white shadow-lg' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    My Tasks
+                </div>
+                <svg class="h-4 w-4 transition-transform" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div x-show="open" x-transition class="ml-8 mt-1 space-y-1">
+                <a href="{{ route('my-tasks') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('my-tasks') && !request()->routeIs('my-tasks.*') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white' }}">
+                    All My Tasks
+                </a>
+                <a href="{{ route('my-tasks.onboarding') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('my-tasks.onboarding') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white' }}">
+                    Onboarding Tasks
+                </a>
+                <a href="{{ route('my-tasks.exit') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('my-tasks.exit') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white' }}">
+                    Clearance Tasks
+                </a>
+            </div>
+        </div>
 
         <!-- Section Divider -->
         <div class="pt-4 pb-2">
@@ -105,12 +123,6 @@
             <div x-show="open" x-transition class="ml-8 mt-1 space-y-1">
                 <a href="{{ route('tasks.index') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('tasks.index') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white' }}">
                     All Tasks
-                </a>
-                <a href="{{ route('tasks.onboarding') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('tasks.onboarding') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white' }}">
-                    Onboarding Tasks
-                </a>
-                <a href="{{ route('tasks.exit') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('tasks.exit') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white' }}">
-                    Exit Tasks
                 </a>
                 <a href="{{ route('task-assignments.by-employee') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('task-assignments.by-employee') || request()->routeIs('task-assignments.employee-detail') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white' }}">
                     By Employee
@@ -223,13 +235,31 @@
                 </a>
                 @endcan
                 
-                <!-- My Tasks -->
-                <a href="{{ route('my-tasks') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-xl {{ request()->routeIs('my-tasks') ? 'bg-gradient-to-r from-primary-500 to-cobalt-600 text-white shadow-lg' : 'text-gray-300 hover:bg-white/10' }}">
-                    <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                    My Tasks
-                </a>
+                <!-- My Tasks with Submenu -->
+                <div x-data="{ open: {{ request()->routeIs('my-tasks*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" class="flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium rounded-xl {{ request()->routeIs('my-tasks*') ? 'bg-gradient-to-r from-primary-500 to-cobalt-600 text-white shadow-lg' : 'text-gray-300 hover:bg-white/10' }}">
+                        <div class="flex items-center">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                            My Tasks
+                        </div>
+                        <svg class="h-4 w-4 transition-transform" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-transition class="ml-8 mt-1 space-y-1">
+                        <a href="{{ route('my-tasks') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('my-tasks') && !request()->routeIs('my-tasks.*') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10' }}">
+                            All My Tasks
+                        </a>
+                        <a href="{{ route('my-tasks.onboarding') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('my-tasks.onboarding') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10' }}">
+                            Onboarding Tasks
+                        </a>
+                        <a href="{{ route('my-tasks.exit') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('my-tasks.exit') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10' }}">
+                            Clearance Tasks
+                        </a>
+                    </div>
+                </div>
                 
                 <!-- Section Divider -->
                 <div class="pt-4 pb-2">
@@ -273,12 +303,6 @@
                     <div x-show="open" x-transition class="ml-8 mt-1 space-y-1">
                         <a href="{{ route('tasks.index') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('tasks.index') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10' }}">
                             All Tasks
-                        </a>
-                        <a href="{{ route('tasks.onboarding') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('tasks.onboarding') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10' }}">
-                            Onboarding Tasks
-                        </a>
-                        <a href="{{ route('tasks.exit') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('tasks.exit') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10' }}">
-                            Exit Tasks
                         </a>
                         <a href="{{ route('task-assignments.by-employee') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('task-assignments.by-employee') || request()->routeIs('task-assignments.employee-detail') ? 'bg-white/20 text-white' : 'text-gray-400 hover:bg-white/10' }}">
                             By Employee

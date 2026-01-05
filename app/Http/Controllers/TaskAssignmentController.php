@@ -37,6 +37,46 @@ class TaskAssignmentController extends Controller
     }
 
     /**
+     * Show the onboarding tasks page with table view.
+     */
+    public function myOnboardingTasks()
+    {
+        $user = Auth::user();
+        
+        // Get all unique employees with onboarding task assignments for this user
+        $assignments = TaskAssignment::with(['task.department', 'assignable.employee.department'])
+            ->where('assigned_to', $user->id)
+            ->whereHas('task', function ($query) {
+                $query->where('type', 'onboarding');
+            })
+            ->whereHasMorph('assignable', [\App\Models\OnboardingRequest::class])
+            ->latest()
+            ->paginate(15);
+
+        return view('my-tasks.onboarding', compact('assignments'));
+    }
+
+    /**
+     * Show the exit tasks page with table view.
+     */
+    public function myExitTasks()
+    {
+        $user = Auth::user();
+        
+        // Get all unique employees with exit task assignments for this user
+        $assignments = TaskAssignment::with(['task.department', 'assignable.employee.department'])
+            ->where('assigned_to', $user->id)
+            ->whereHas('task', function ($query) {
+                $query->where('type', 'exit');
+            })
+            ->whereHasMorph('assignable', [\App\Models\ExitClearanceRequest::class])
+            ->latest()
+            ->paginate(15);
+
+        return view('my-tasks.exit', compact('assignments'));
+    }
+
+    /**
      * Update the status of a task assignment.
      */
     public function updateStatus(Request $request, TaskAssignment $taskAssignment)
