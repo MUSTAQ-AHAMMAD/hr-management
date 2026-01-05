@@ -69,6 +69,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('task-assignments/{taskAssignment}/partially-close', [TaskAssignmentController::class, 'partiallyClose'])->name('task-assignments.partially-close');
     Route::post('task-assignments/{taskAssignment}/reopen', [TaskAssignmentController::class, 'reopenTask'])->name('task-assignments.reopen');
     Route::get('my-tasks', [TaskAssignmentController::class, 'myTasks'])->name('my-tasks');
+    Route::get('my-tasks/onboarding', [TaskAssignmentController::class, 'myOnboardingTasks'])->name('my-tasks.onboarding');
+    Route::get('my-tasks/exit', [TaskAssignmentController::class, 'myExitTasks'])->name('my-tasks.exit');
     Route::get('task-assignments/by-employee', [TaskAssignmentController::class, 'employeeAssignments'])->name('task-assignments.by-employee');
     Route::get('task-assignments/employee/{employee}', [TaskAssignmentController::class, 'employeeDetail'])->name('task-assignments.employee-detail');
 
