@@ -143,4 +143,30 @@ class TaskController extends Controller implements HasMiddleware
             return back()->with('error', 'Failed to delete task: '.$e->getMessage());
         }
     }
+
+    /**
+     * Display onboarding tasks only.
+     */
+    public function onboardingTasks()
+    {
+        $tasks = Task::with('department')
+            ->where('type', 'onboarding')
+            ->orderBy('priority')
+            ->paginate(15);
+
+        return view('tasks.onboarding', compact('tasks'));
+    }
+
+    /**
+     * Display exit tasks only.
+     */
+    public function exitTasks()
+    {
+        $tasks = Task::with('department')
+            ->where('type', 'exit')
+            ->orderBy('priority')
+            ->paginate(15);
+
+        return view('tasks.exit', compact('tasks'));
+    }
 }

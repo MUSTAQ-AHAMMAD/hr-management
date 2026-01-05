@@ -122,4 +122,49 @@ class TaskAssignmentController extends Controller
 
         return back()->with('success', 'Task reopened successfully.');
     }
+
+    /**
+     * Show employee task assignments page with search functionality.
+     */
+    public function employeeAssignments(Request $request)
+    {
+        $employeeCode = $request->input('employee_code');
+        $employees = collect();
+
+        if ($employeeCode) {
+            // Search for employees by employee code
+            $employees = \App\Models\Employee::with(['department'])
+                ->where('employee_code', 'like', "%{$employeeCode}%")
+                ->orWhere('first_name', 'like', "%{$employeeCode}%")
+                ->orWhere('last_name', 'like', "%{$employeeCode}%")
+                ->get();
+        }
+
+        return view('task-assignments.employee-assignments', compact('employees', 'employeeCode'));
+    }
+
+    /**
+     * Show task assignments for a specific employee.
+     */
+    public function employeeDetail($employeeId)
+    {
+        $employee = \App\Models\Employee::with(['department'])->findOrFail($employeeId);
+        
+        // Get all task assignments for this employee (through onboarding and exit requests)
+        $onboardingAssignments = TaskAssignment::with(['task.department', 'assignable', 'assignedTo'])
+            ->whereHasMorph('assignable', [\App\Models\OnboardingRequest::class], function ($query) use ($employeeId) {
+                $query->where('employee_id', $employeeId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $exitAssignments = TaskAssignment::with(['task.department', 'assignable', 'assignedTo'])
+            ->whereHasMorph('assignable', [\App\Models\ExitClearanceRequest::class], function ($query) use ($employeeId) {
+                $query->where('employee_id', $employeeId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('task-assignments.employee-detail', compact('employee', 'onboardingAssignments', 'exitAssignments'));
+    }
 }

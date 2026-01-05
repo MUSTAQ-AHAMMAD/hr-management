@@ -61,12 +61,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Tasks
     Route::resource('tasks', TaskController::class);
+    Route::get('tasks-onboarding', [TaskController::class, 'onboardingTasks'])->name('tasks.onboarding');
+    Route::get('tasks-exit', [TaskController::class, 'exitTasks'])->name('tasks.exit');
 
     // Task Assignments
     Route::post('task-assignments/{taskAssignment}/update-status', [TaskAssignmentController::class, 'updateStatus'])->name('task-assignments.update-status');
     Route::post('task-assignments/{taskAssignment}/partially-close', [TaskAssignmentController::class, 'partiallyClose'])->name('task-assignments.partially-close');
     Route::post('task-assignments/{taskAssignment}/reopen', [TaskAssignmentController::class, 'reopenTask'])->name('task-assignments.reopen');
     Route::get('my-tasks', [TaskAssignmentController::class, 'myTasks'])->name('my-tasks');
+    Route::get('task-assignments/by-employee', [TaskAssignmentController::class, 'employeeAssignments'])->name('task-assignments.by-employee');
+    Route::get('task-assignments/employee/{employee}', [TaskAssignmentController::class, 'employeeDetail'])->name('task-assignments.employee-detail');
 
     // Notifications
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
