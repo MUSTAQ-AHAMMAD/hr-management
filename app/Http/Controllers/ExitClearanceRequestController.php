@@ -17,11 +17,27 @@ class ExitClearanceRequestController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $requests = ExitClearanceRequest::with(['employee', 'initiatedBy', 'taskAssignments.task'])
-            ->latest()
-            ->paginate(15);
+        $query = ExitClearanceRequest::with(['employee', 'initiatedBy', 'taskAssignments.task']);
+
+        // Filter by employee code or name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('employee', function ($q) use ($search) {
+                $q->where('employee_code', 'like', "%{$search}%")
+                  ->orWhere('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", ["%{$search}%"]);
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $requests = $query->latest()->paginate(15);
 
         return view('exit-clearance-requests.index', compact('requests'));
     }

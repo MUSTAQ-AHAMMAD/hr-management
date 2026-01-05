@@ -30,8 +30,9 @@
                                                 data-designation="{{ $employee->designation ?? 'N/A' }}"
                                                 data-joining-date="{{ $employee->joining_date ? $employee->joining_date->format('F d, Y') : 'Not set' }}"
                                                 data-email="{{ $employee->email }}"
+                                                data-has-login="{{ $employee->user_id ? 'Yes' : 'No' }}"
                                                 {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
-                                                {{ $employee->full_name }} ({{ $employee->employee_code }})
+                                                {{ $employee->employee_code }} - {{ $employee->full_name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -48,7 +49,7 @@
                                         </svg>
                                         Employee Information
                                     </h4>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                         <div>
                                             <p class="text-xs text-gray-600 font-medium">Department</p>
                                             <p id="display-department" class="text-sm text-gray-900 mt-1">-</p>
@@ -65,7 +66,29 @@
                                             <p class="text-xs text-gray-600 font-medium">Email</p>
                                             <p id="display-email" class="text-sm text-gray-900 mt-1">-</p>
                                         </div>
+                                        <div>
+                                            <p class="text-xs text-gray-600 font-medium">Has Login</p>
+                                            <p id="display-has-login" class="text-sm text-gray-900 mt-1">-</p>
+                                        </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Create Login Checkbox -->
+                            <div class="md:col-span-2" id="create-login-section" style="display: none;">
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                    <label class="flex items-start cursor-pointer">
+                                        <input type="checkbox" name="create_login" id="create_login" value="1" class="mt-1 rounded border-gray-300 text-cobalt-600 focus:ring-cobalt-500">
+                                        <div class="ml-3">
+                                            <span class="font-medium text-gray-900">Create Employee Login Account</span>
+                                            <p class="text-sm text-gray-600 mt-1">
+                                                Check this box to create a login account for the employee. The account will be created with email: <span id="login-email" class="font-medium"></span> and default password: <span class="font-mono bg-gray-200 px-1 rounded">password</span>
+                                            </p>
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                Note: The employee should change this password on first login.
+                                            </p>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
 
@@ -259,6 +282,8 @@
             const select = document.getElementById('employee_id');
             const selectedOption = select.options[select.selectedIndex];
             const detailsDiv = document.getElementById('employee-details');
+            const createLoginSection = document.getElementById('create-login-section');
+            const createLoginCheckbox = document.getElementById('create_login');
             
             if (selectedOption.value) {
                 // Show the details section
@@ -269,9 +294,21 @@
                 document.getElementById('display-designation').textContent = selectedOption.getAttribute('data-designation');
                 document.getElementById('display-joining-date').textContent = selectedOption.getAttribute('data-joining-date');
                 document.getElementById('display-email').textContent = selectedOption.getAttribute('data-email');
+                document.getElementById('display-has-login').textContent = selectedOption.getAttribute('data-has-login');
+                
+                // Show/hide create login section based on whether employee has login
+                const hasLogin = selectedOption.getAttribute('data-has-login');
+                if (hasLogin === 'No') {
+                    createLoginSection.style.display = 'block';
+                    document.getElementById('login-email').textContent = selectedOption.getAttribute('data-email');
+                } else {
+                    createLoginSection.style.display = 'none';
+                    createLoginCheckbox.checked = false;
+                }
             } else {
                 // Hide the details section if no employee is selected
                 detailsDiv.classList.add('hidden');
+                createLoginSection.style.display = 'none';
             }
         }
 

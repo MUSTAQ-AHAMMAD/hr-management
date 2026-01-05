@@ -80,9 +80,10 @@
                             <div>
                                 <x-input-label for="status" :value="__('Status')" />
                                 <select id="status" name="status" class="mt-1 block w-full border-gray-300 focus:border-navy-500 focus:ring-navy-500 rounded-md shadow-sm" required>
-                                    <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
-                                    <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                    <option value="on_leave" {{ old('status') == 'on_leave' ? 'selected' : '' }}>On Leave</option>
+                                    <option value="onboarding" {{ old('status', 'onboarding') == 'onboarding' ? 'selected' : '' }}>Onboarding</option>
+                                    <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                    <option value="exit_initiated" {{ old('status') == 'exit_initiated' ? 'selected' : '' }}>Exit Initiated</option>
+                                    <option value="exited" {{ old('status') == 'exited' ? 'selected' : '' }}>Exited</option>
                                 </select>
                                 <x-input-error class="mt-2" :messages="$errors->get('status')" />
                             </div>

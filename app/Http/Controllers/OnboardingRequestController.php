@@ -16,11 +16,27 @@ class OnboardingRequestController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $requests = OnboardingRequest::with(['employee', 'initiatedBy', 'taskAssignments.task'])
-            ->latest()
-            ->paginate(15);
+        $query = OnboardingRequest::with(['employee', 'initiatedBy', 'taskAssignments.task']);
+
+        // Filter by employee code or name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('employee', function ($q) use ($search) {
+                $q->where('employee_code', 'like', "%{$search}%")
+                  ->orWhere('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", ["%{$search}%"]);
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $requests = $query->latest()->paginate(15);
 
         return view('onboarding-requests.index', compact('requests'));
     }
@@ -73,6 +89,7 @@ class OnboardingRequestController extends Controller
             'department_ids.*' => 'exists:departments,id',
             'task_ids' => 'nullable|array',
             'task_ids.*' => 'exists:tasks,id',
+            'create_login' => 'nullable|boolean',
         ]);
 
         $validated['initiated_by'] = Auth::id();
@@ -95,9 +112,10 @@ class OnboardingRequestController extends Controller
                 }
             }
 
-            // Create user account for the employee if not already exists
+            // Create user account for the employee if requested and not already exists
             $employee = Employee::find($validated['employee_id']);
-            if (!$employee->user_id) {
+            $loginCreated = false;
+            if ($request->has('create_login') && $request->create_login && !$employee->user_id) {
                 $user = User::create([
                     'name' => $employee->full_name,
                     'email' => $employee->email,
@@ -111,6 +129,7 @@ class OnboardingRequestController extends Controller
                 
                 // Link user to employee
                 $employee->update(['user_id' => $user->id]);
+                $loginCreated = true;
             }
 
             // Assign tasks if provided
@@ -144,7 +163,10 @@ class OnboardingRequestController extends Controller
 
             \DB::commit();
 
-            $message = 'Onboarding request created successfully. Employee user account has been created.';
+            $message = 'Onboarding request created successfully.';
+            if ($loginCreated) {
+                $message .= ' Employee user account has been created with default password "password".';
+            }
             if ($request->has('task_ids') && count($request->task_ids) > 0) {
                 $message .= ' Selected tasks have been assigned to department users.';
             } else {

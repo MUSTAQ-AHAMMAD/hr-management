@@ -14,12 +14,26 @@ class TaskAssignmentController extends Controller
     public function myTasks()
     {
         $user = Auth::user();
-        $taskAssignments = TaskAssignment::with(['task', 'assignable'])
+        
+        // Get onboarding task assignments
+        $onboardingTasks = TaskAssignment::with(['task.department', 'assignable'])
             ->where('assigned_to', $user->id)
+            ->whereHas('task', function ($query) {
+                $query->where('type', 'onboarding');
+            })
             ->latest()
-            ->paginate(15);
+            ->get();
+        
+        // Get exit clearance task assignments
+        $exitTasks = TaskAssignment::with(['task.department', 'assignable'])
+            ->where('assigned_to', $user->id)
+            ->whereHas('task', function ($query) {
+                $query->where('type', 'exit');
+            })
+            ->latest()
+            ->get();
 
-        return view('my-tasks', compact('taskAssignments'));
+        return view('my-tasks', compact('onboardingTasks', 'exitTasks'));
     }
 
     /**

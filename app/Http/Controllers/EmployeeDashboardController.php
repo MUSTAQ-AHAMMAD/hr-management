@@ -48,12 +48,19 @@ class EmployeeDashboardController extends Controller
             ->with('taskAssignments.task.department')
             ->first();
         
+        // Get exit clearance status
+        $exitClearanceRequest = $employee->exitClearanceRequests()
+            ->whereIn('status', ['pending', 'in_progress'])
+            ->with('taskAssignments.task.department')
+            ->first();
+        
         return view('employee-dashboard', compact(
             'employee',
             'pendingAssets',
             'acceptedAssets',
             'returnedAssets',
-            'onboardingRequest'
+            'onboardingRequest',
+            'exitClearanceRequest'
         ));
     }
     
