@@ -1,14 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-bold text-2xl text-gray-900 leading-tight"><span class="bg-gradient-to-r from-primary-600 to-cobalt-600 bg-clip-text text-transparent">
             {{ __('Edit Exit Clearance Request') }}
-        </h2>
+        </span></h2>
     </x-slot>
 
-    <div class="py-6">
+    <div class="py-8">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
+            <div class="bg-white overflow-hidden shadow-2xl rounded-2xl border border-gray-100">
+                <div class="p-8">
                     <form action="{{ route('exit-clearance-requests.update', $exitClearanceRequest) }}" method="POST">
                         @csrf
                         @method('PUT')
