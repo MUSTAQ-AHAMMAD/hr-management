@@ -43,7 +43,7 @@ class TaskAssignmentController extends Controller
     {
         $user = Auth::user();
         
-        // Get all unique employees with onboarding task assignments for this user
+        // Get all onboarding task assignments for this user with pagination
         $assignments = TaskAssignment::with(['task.department', 'assignable.employee.department'])
             ->where('assigned_to', $user->id)
             ->whereHas('task', function ($query) {
@@ -63,7 +63,7 @@ class TaskAssignmentController extends Controller
     {
         $user = Auth::user();
         
-        // Get all unique employees with exit task assignments for this user
+        // Get all exit/clearance task assignments for this user with pagination
         $assignments = TaskAssignment::with(['task.department', 'assignable.employee.department'])
             ->where('assigned_to', $user->id)
             ->whereHas('task', function ($query) {
