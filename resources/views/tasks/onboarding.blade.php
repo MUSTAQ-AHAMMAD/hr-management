@@ -49,7 +49,7 @@
                     </div>
                     <div class="ml-auto">
                         <p class="text-sm font-medium text-gray-500">Active Tasks</p>
-                        <p class="text-2xl font-bold text-green-600">{{ $tasks->where('is_active', true)->count() }}</p>
+                        <p class="text-2xl font-bold text-green-600">{{ $activeCount }}</p>
                     </div>
                 </div>
             </div>

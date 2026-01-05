@@ -154,7 +154,11 @@ class TaskController extends Controller implements HasMiddleware
             ->orderBy('priority')
             ->paginate(15);
 
-        return view('tasks.onboarding', compact('tasks'));
+        $activeCount = Task::where('type', 'onboarding')
+            ->where('is_active', true)
+            ->count();
+
+        return view('tasks.onboarding', compact('tasks', 'activeCount'));
     }
 
     /**
@@ -167,6 +171,10 @@ class TaskController extends Controller implements HasMiddleware
             ->orderBy('priority')
             ->paginate(15);
 
-        return view('tasks.exit', compact('tasks'));
+        $activeCount = Task::where('type', 'exit')
+            ->where('is_active', true)
+            ->count();
+
+        return view('tasks.exit', compact('tasks', 'activeCount'));
     }
 }

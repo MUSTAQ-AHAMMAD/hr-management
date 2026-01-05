@@ -132,11 +132,16 @@ class TaskAssignmentController extends Controller
         $employees = collect();
 
         if ($employeeCode) {
-            // Search for employees by employee code
+            // Escape special characters for LIKE query
+            $searchTerm = str_replace(['%', '_'], ['\%', '\_'], $employeeCode);
+            
+            // Search for employees by employee code or name with proper query structure
             $employees = \App\Models\Employee::with(['department'])
-                ->where('employee_code', 'like', "%{$employeeCode}%")
-                ->orWhere('first_name', 'like', "%{$employeeCode}%")
-                ->orWhere('last_name', 'like', "%{$employeeCode}%")
+                ->where(function ($query) use ($searchTerm) {
+                    $query->where('employee_code', 'like', "%{$searchTerm}%")
+                        ->orWhere('first_name', 'like', "%{$searchTerm}%")
+                        ->orWhere('last_name', 'like', "%{$searchTerm}%");
+                })
                 ->get();
         }
 
