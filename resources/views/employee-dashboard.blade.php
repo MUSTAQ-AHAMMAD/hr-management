@@ -21,24 +21,93 @@
             @if($onboardingRequest)
             <div class="bg-blue-50 border border-blue-200 overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
-                    <h3 class="text-xl font-bold mb-4 text-blue-900">Your Onboarding Status</h3>
-                    <p class="text-gray-700 mb-4">Status: <span class="font-semibold">{{ ucfirst(str_replace('_', ' ', $onboardingRequest->status)) }}</span></p>
-                    
-                    @if($onboardingRequest->taskAssignments->count() > 0)
-                    <div class="mt-4">
-                        <h4 class="font-semibold mb-2">Department Tasks:</h4>
-                        <ul class="list-disc list-inside space-y-2">
-                            @foreach($onboardingRequest->taskAssignments as $assignment)
-                            <li class="text-gray-700">
-                                <span class="font-medium">{{ $assignment->task->department->name }}</span>: {{ $assignment->task->name }}
-                                - <span class="text-sm {{ $assignment->status === 'completed' ? 'text-green-600' : 'text-orange-600' }}">
-                                    {{ ucfirst(str_replace('_', ' ', $assignment->status)) }}
-                                </span>
-                            </li>
-                            @endforeach
-                        </ul>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-xl font-bold mb-2 text-blue-900">Your Onboarding Status</h3>
+                            <p class="text-gray-700 mb-2">Request #{{ $onboardingRequest->id }} - Status: <span class="font-semibold">{{ ucfirst(str_replace('_', ' ', $onboardingRequest->status)) }}</span></p>
+                            <p class="text-sm text-gray-600 mb-4">Expected Completion: {{ $onboardingRequest->expected_completion_date->format('M d, Y') }}</p>
+                            
+                            @if($onboardingRequest->taskAssignments->count() > 0)
+                            <div class="mt-4">
+                                <h4 class="font-semibold mb-3 text-blue-800">Department Onboarding Tasks:</h4>
+                                <div class="space-y-2">
+                                    @foreach($onboardingRequest->taskAssignments as $assignment)
+                                    <div class="bg-white rounded-lg p-3 border border-blue-200">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <span class="font-medium text-gray-900">{{ $assignment->task->name }}</span>
+                                                <p class="text-sm text-gray-600">{{ $assignment->task->department->name }} - {{ $assignment->task->description }}</p>
+                                            </div>
+                                            <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $assignment->status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                                {{ ucfirst(str_replace('_', ' ', $assignment->status)) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <div class="mt-4 p-3 bg-blue-100 rounded-lg">
+                                    <p class="text-sm text-blue-900">
+                                        <strong>Progress:</strong> {{ $onboardingRequest->taskAssignments->where('status', 'completed')->count() }} of {{ $onboardingRequest->taskAssignments->count() }} tasks completed
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
                     </div>
-                    @endif
+                </div>
+            </div>
+            @endif
+
+            <!-- Exit Clearance Status -->
+            @if(isset($exitClearanceRequest) && $exitClearanceRequest)
+            <div class="bg-orange-50 border border-orange-200 overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-6">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-8 w-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-xl font-bold mb-2 text-orange-900">Your Exit Clearance Status</h3>
+                            <p class="text-gray-700 mb-2">Request #{{ $exitClearanceRequest->id }} - Status: <span class="font-semibold">{{ ucfirst(str_replace('_', ' ', $exitClearanceRequest->status)) }}</span></p>
+                            <p class="text-sm text-gray-600 mb-4">Exit Date: {{ $exitClearanceRequest->exit_date->format('M d, Y') }}</p>
+                            
+                            @if($exitClearanceRequest->taskAssignments->count() > 0)
+                            <div class="mt-4">
+                                <h4 class="font-semibold mb-3 text-orange-800">Department Clearance Tasks:</h4>
+                                <div class="space-y-2">
+                                    @foreach($exitClearanceRequest->taskAssignments as $assignment)
+                                    <div class="bg-white rounded-lg p-3 border border-orange-200">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <span class="font-medium text-gray-900">{{ $assignment->task->name }}</span>
+                                                <p class="text-sm text-gray-600">{{ $assignment->task->department->name }} - {{ $assignment->task->description }}</p>
+                                            </div>
+                                            <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $assignment->status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                                {{ ucfirst(str_replace('_', ' ', $assignment->status)) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <div class="mt-4 p-3 bg-orange-100 rounded-lg">
+                                    <p class="text-sm text-orange-900">
+                                        <strong>Progress:</strong> {{ $exitClearanceRequest->taskAssignments->where('status', 'completed')->count() }} of {{ $exitClearanceRequest->taskAssignments->count() }} tasks completed
+                                    </p>
+                                    @if($exitClearanceRequest->taskAssignments->where('status', 'completed')->count() === $exitClearanceRequest->taskAssignments->count())
+                                    <p class="text-sm text-green-700 font-semibold mt-2">
+                                        ✓ All clearance tasks completed! Your exit clearance is being processed.
+                                    </p>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
             @endif
