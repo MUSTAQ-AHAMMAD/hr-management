@@ -42,13 +42,13 @@ class EmployeeController extends Controller
             'department_id' => 'required|exists:departments,id',
             'designation' => 'required|string|max:255',
             'joining_date' => 'required|date',
-            'status' => 'required|in:active,inactive,on_leave',
+            'status' => 'required|in:onboarding,active,exit_initiated,exited',
         ]);
 
         Employee::create($validated);
 
         return redirect()->route('employees.index')
-            ->with('success', 'Employee created successfully.');
+            ->with('success', 'Employee created successfully. You can now create an onboarding request to set up their account and assign tasks.');
     }
 
     /**
@@ -86,7 +86,7 @@ class EmployeeController extends Controller
             'designation' => 'required|string|max:255',
             'joining_date' => 'required|date',
             'exit_date' => 'nullable|date|after_or_equal:joining_date',
-            'status' => 'required|in:active,inactive,on_leave',
+            'status' => 'required|in:onboarding,active,exit_initiated,exited',
         ]);
 
         $employee->update($validated);
