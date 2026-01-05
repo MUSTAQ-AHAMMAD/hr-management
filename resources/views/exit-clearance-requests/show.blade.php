@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-bold text-2xl text-gray-900 leading-tight"><span class="bg-gradient-to-r from-primary-600 to-cobalt-600 bg-clip-text text-transparent">
                 {{ __('Exit Clearance Request #') }}{{ $exitClearanceRequest->id }}
-            </h2>
+            </span></h2>
             <div class="flex space-x-3">
                 @if($exitClearanceRequest->status === 'cleared' || $exitClearanceRequest->taskAssignments->whereIn('status', ['pending', 'in_progress'])->count() === 0)
                     <form action="{{ route('exit-clearance-requests.generate-pdf', $exitClearanceRequest) }}" method="POST">
@@ -20,7 +20,7 @@
         </div>
     </x-slot>
 
-    <div class="py-6">
+    <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
             <!-- Success/Error Messages -->
@@ -36,8 +36,8 @@
             @endif
 
             <!-- Employee Details -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
+            <div class="bg-white overflow-hidden shadow-2xl rounded-2xl border border-gray-100">
+                <div class="p-8">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Employee Information</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
@@ -83,8 +83,8 @@
 
             <!-- Employee Assets -->
             @if($exitClearanceRequest->employee->assets->count() > 0)
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
+            <div class="bg-white overflow-hidden shadow-2xl rounded-2xl border border-gray-100">
+                <div class="p-8">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Employee Assets</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
@@ -128,8 +128,8 @@
 
             <!-- Task Assignments -->
             @if($exitClearanceRequest->taskAssignments->count() > 0)
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
+            <div class="bg-white overflow-hidden shadow-2xl rounded-2xl border border-gray-100">
+                <div class="p-8">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Clearance Tasks</h3>
                     <div class="space-y-4">
                         @foreach($exitClearanceRequest->taskAssignments->groupBy('task.department.name') as $departmentName => $assignments)
@@ -171,8 +171,8 @@
 
             <!-- Assign Tasks Form -->
             @if($exitClearanceRequest->status === 'pending' || $availableTasks->whereNotIn('id', $exitClearanceRequest->taskAssignments->pluck('task_id'))->count() > 0)
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
+            <div class="bg-white overflow-hidden shadow-2xl rounded-2xl border border-gray-100">
+                <div class="p-8">
                     <div class="flex items-center mb-4">
                         <svg class="h-6 w-6 text-cobalt-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
