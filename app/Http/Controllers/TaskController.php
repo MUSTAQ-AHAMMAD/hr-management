@@ -5,15 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Department;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class TaskController extends Controller
+class TaskController extends Controller implements HasMiddleware
 {
-    public function __construct()
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
     {
-        $this->middleware('permission:view tasks')->only(['index', 'show']);
-        $this->middleware('permission:create tasks')->only(['create', 'store']);
-        $this->middleware('permission:edit tasks')->only(['edit', 'update']);
-        $this->middleware('permission:delete tasks')->only(['destroy']);
+        return [
+            new Middleware('permission:view tasks', only: ['index', 'show']),
+            new Middleware('permission:create tasks', only: ['create', 'store']),
+            new Middleware('permission:edit tasks', only: ['edit', 'update']),
+            new Middleware('permission:delete tasks', only: ['destroy']),
+        ];
     }
 
     /**
