@@ -57,6 +57,41 @@
                             </div>
 
                             <div>
+                                <x-input-label for="asset_value" :value="__('Asset Value (Optional)')" />
+                                <x-text-input id="asset_value" name="asset_value" type="number" step="0.01" min="0" class="mt-1 block w-full" :value="old('asset_value')" placeholder="e.g., 1200.00" />
+                                <x-input-error class="mt-2" :messages="$errors->get('asset_value')" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="purchase_date" :value="__('Purchase Date (Optional)')" />
+                                <x-text-input id="purchase_date" name="purchase_date" type="date" class="mt-1 block w-full" :value="old('purchase_date')" />
+                                <x-input-error class="mt-2" :messages="$errors->get('purchase_date')" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="condition" :value="__('Condition')" />
+                                <select id="condition" name="condition" class="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm">
+                                    <option value="new" {{ old('condition') == 'new' ? 'selected' : '' }}>New</option>
+                                    <option value="good" {{ old('condition', 'good') == 'good' ? 'selected' : '' }}>Good</option>
+                                    <option value="fair" {{ old('condition') == 'fair' ? 'selected' : '' }}>Fair</option>
+                                    <option value="poor" {{ old('condition') == 'poor' ? 'selected' : '' }}>Poor</option>
+                                </select>
+                                <x-input-error class="mt-2" :messages="$errors->get('condition')" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="warranty_period" :value="__('Warranty Period (Optional)')" />
+                                <x-text-input id="warranty_period" name="warranty_period" type="text" class="mt-1 block w-full" :value="old('warranty_period')" placeholder="e.g., 2 years" />
+                                <x-input-error class="mt-2" :messages="$errors->get('warranty_period')" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="warranty_expiry" :value="__('Warranty Expiry (Optional)')" />
+                                <x-text-input id="warranty_expiry" name="warranty_expiry" type="date" class="mt-1 block w-full" :value="old('warranty_expiry')" />
+                                <x-input-error class="mt-2" :messages="$errors->get('warranty_expiry')" />
+                            </div>
+
+                            <div>
                                 <x-input-label for="assigned_date" :value="__('Assigned Date')" />
                                 <x-text-input id="assigned_date" name="assigned_date" type="date" class="mt-1 block w-full" :value="old('assigned_date', date('Y-m-d'))" required />
                                 <x-input-error class="mt-2" :messages="$errors->get('assigned_date')" />

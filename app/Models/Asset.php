@@ -12,6 +12,11 @@ class Asset extends Model
         'asset_type',
         'asset_name',
         'serial_number',
+        'asset_value',
+        'purchase_date',
+        'condition',
+        'warranty_period',
+        'warranty_expiry',
         'description',
         'assigned_by',
         'assigned_date',
@@ -30,7 +35,10 @@ class Asset extends Model
         'assigned_date' => 'date',
         'return_date' => 'date',
         'acceptance_date' => 'date',
+        'purchase_date' => 'date',
+        'warranty_expiry' => 'date',
         'depreciation_value' => 'decimal:2',
+        'asset_value' => 'decimal:2',
     ];
 
     public function employee(): BelongsTo

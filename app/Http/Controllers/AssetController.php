@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Models\Employee;
+use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,12 +53,18 @@ class AssetController extends Controller
             'asset_type' => 'required|string|max:255',
             'asset_name' => 'required|string|max:255',
             'serial_number' => 'nullable|string|max:255',
+            'asset_value' => 'nullable|numeric|min:0',
+            'purchase_date' => 'nullable|date',
+            'condition' => 'nullable|in:new,good,fair,poor',
+            'warranty_period' => 'nullable|string|max:255',
+            'warranty_expiry' => 'nullable|date',
             'description' => 'nullable|string',
             'assigned_date' => 'required|date',
         ]);
 
         $validated['assigned_by'] = Auth::id();
         $validated['status'] = 'assigned';
+        $validated['condition'] = $validated['condition'] ?? 'good';
 
         Asset::create($validated);
 
@@ -92,6 +100,11 @@ class AssetController extends Controller
             'asset_type' => 'required|string|max:255',
             'asset_name' => 'required|string|max:255',
             'serial_number' => 'nullable|string|max:255',
+            'asset_value' => 'nullable|numeric|min:0',
+            'purchase_date' => 'nullable|date',
+            'condition' => 'nullable|in:new,good,fair,poor',
+            'warranty_period' => 'nullable|string|max:255',
+            'warranty_expiry' => 'nullable|date',
             'description' => 'nullable|string',
             'assigned_date' => 'required|date',
             'status' => 'required|in:assigned,returned,damaged,lost',
@@ -151,6 +164,9 @@ class AssetController extends Controller
             'depreciation_value' => $validated['depreciation_value'],
         ]);
 
+        // Notify HR users about the damaged asset
+        $this->notifyHRAboutAssetDamage($asset, 'damaged');
+
         return back()->with('success', 'Asset marked as damaged with depreciation value recorded.');
     }
 
@@ -171,6 +187,96 @@ class AssetController extends Controller
             'depreciation_value' => $validated['depreciation_value'],
         ]);
 
+        // Notify HR users about the lost asset
+        $this->notifyHRAboutAssetDamage($asset, 'lost');
+
         return back()->with('success', 'Asset marked as lost with depreciation value recorded.');
+    }
+
+    /**
+     * Notify HR users about damaged or lost assets.
+     */
+    private function notifyHRAboutAssetDamage(Asset $asset, string $status)
+    {
+        // Get all HR users (users with Admin or Super Admin roles)
+        $hrUsers = User::role(['Admin', 'Super Admin'])->get();
+
+        $statusText = ucfirst($status);
+        $lossAmount = $asset->depreciation_value ?? 0;
+        
+        $employee = $asset->employee;
+        $department = $employee->department->name ?? 'N/A';
+
+        foreach ($hrUsers as $hrUser) {
+            Notification::create([
+                'user_id' => $hrUser->id,
+                'title' => "Asset {$statusText}: {$asset->asset_name}",
+                'message' => "Employee {$employee->full_name} ({$employee->employee_code}) from {$department} department has {$status} asset '{$asset->asset_name}' ({$asset->asset_type}). Loss amount: $" . number_format($lossAmount, 2) . ". Reason: {$asset->damage_notes}",
+                'type' => 'asset_damage',
+                'notifiable_type' => Asset::class,
+                'notifiable_id' => $asset->id,
+                'is_read' => false,
+            ]);
+        }
+    }
+
+    /**
+     * Display asset reports and analytics.
+     */
+    public function reports(Request $request)
+    {
+        $query = Asset::with(['employee.department', 'assignedBy']);
+
+        // Filter by date range
+        if ($request->has('start_date') && $request->start_date) {
+            $query->where('assigned_date', '>=', $request->start_date);
+        }
+        if ($request->has('end_date') && $request->end_date) {
+            $query->where('assigned_date', '<=', $request->end_date);
+        }
+
+        // Filter by status
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by department
+        if ($request->has('department_id') && $request->department_id) {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('department_id', $request->department_id);
+            });
+        }
+
+        $assets = $query->latest()->paginate(50);
+
+        // Calculate statistics
+        $stats = [
+            'total_assets' => Asset::count(),
+            'total_value' => Asset::sum('asset_value') ?? 0,
+            'assigned_count' => Asset::where('status', 'assigned')->count(),
+            'returned_count' => Asset::where('status', 'returned')->count(),
+            'damaged_count' => Asset::where('status', 'damaged')->count(),
+            'lost_count' => Asset::where('status', 'lost')->count(),
+            'total_loss' => Asset::whereIn('status', ['damaged', 'lost'])->sum('depreciation_value') ?? 0,
+        ];
+
+        // Get department-wise breakdown
+        $departmentBreakdown = Asset::with('employee.department')
+            ->get()
+            ->groupBy(function ($asset) {
+                return $asset->employee->department->name ?? 'No Department';
+            })
+            ->map(function ($group) {
+                return [
+                    'count' => $group->count(),
+                    'value' => $group->sum('asset_value'),
+                    'damaged' => $group->where('status', 'damaged')->count(),
+                    'lost' => $group->where('status', 'lost')->count(),
+                ];
+            });
+
+        $departments = \App\Models\Department::all();
+
+        return view('assets.reports', compact('assets', 'stats', 'departmentBreakdown', 'departments'));
     }
 }

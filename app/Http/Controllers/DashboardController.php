@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Asset;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\ExitClearanceRequest;
@@ -42,6 +43,16 @@ class DashboardController extends Controller
             'active_employees' => Employee::where('status', 'active')->count(),
             'pending_onboarding' => OnboardingRequest::where('status', 'pending')->count(),
             'pending_exit_clearance' => ExitClearanceRequest::where('status', 'pending')->count(),
+        ];
+
+        // Get asset statistics
+        $assetStats = [
+            'total_assets' => Asset::count(),
+            'assigned_assets' => Asset::where('status', 'assigned')->count(),
+            'damaged_assets' => Asset::where('status', 'damaged')->count(),
+            'lost_assets' => Asset::where('status', 'lost')->count(),
+            'total_asset_value' => Asset::sum('asset_value') ?? 0,
+            'total_loss_value' => Asset::whereIn('status', ['damaged', 'lost'])->sum('depreciation_value') ?? 0,
         ];
 
         // Get tasks assigned to current user
@@ -92,6 +103,7 @@ class DashboardController extends Controller
 
         return view('dashboard', compact(
             'stats',
+            'assetStats',
             'myTasks',
             'recentOnboarding',
             'recentExitClearance',

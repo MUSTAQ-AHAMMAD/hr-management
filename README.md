@@ -277,6 +277,27 @@ For issues, questions, or suggestions, please open an issue on GitHub or contact
 
 ## Changelog
 
+### Version 1.0.2 (January 2026)
+- **Enhanced Asset Management**
+  - Added comprehensive asset detail fields:
+    - Asset value/price tracking
+    - Purchase date recording
+    - Asset condition tracking (new, good, fair, poor)
+    - Warranty period and expiry date
+  - Implemented automatic HR notification system:
+    - HR users receive notifications when assets are marked as damaged or lost
+    - Notifications include employee details, department, loss amount, and reason
+  - Created comprehensive asset reports and analytics dashboard:
+    - Asset statistics with total value tracking
+    - Department-wise asset breakdown
+    - Damage and loss reporting
+    - Filterable asset reports by date, status, and department
+  - Enhanced main dashboard with asset statistics cards:
+    - Total assets count and value
+    - Assigned assets tracking
+    - Damaged/lost assets monitoring
+    - Total loss value calculation
+
 ### Version 1.0.1 (January 2026)
 - **Fixed**: Exit clearance PDF generation now properly enabled after all department tasks are completed
   - Issue: PDF generation button was not appearing after all departments cleared the exit request
