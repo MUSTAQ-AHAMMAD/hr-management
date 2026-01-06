@@ -54,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('exit-clearance-requests/{exitClearanceRequest}/generate-pdf', [ExitClearanceRequestController::class, 'generatePdf'])->name('exit-clearance-requests.generate-pdf');
 
     // Assets
+    Route::get('assets-reports', [AssetController::class, 'reports'])->name('assets.reports');
     Route::resource('assets', AssetController::class);
     Route::post('assets/{asset}/mark-returned', [AssetController::class, 'markAsReturned'])->name('assets.mark-returned');
     Route::post('assets/{asset}/mark-damaged', [AssetController::class, 'markAsDamaged'])->name('assets.mark-damaged');

@@ -28,6 +28,33 @@
                             <p class="text-base font-medium text-gray-900">{{ $asset->serial_number ?? 'N/A' }}</p>
                         </div>
                         <div>
+                            <p class="text-sm text-gray-500">Asset Value</p>
+                            <p class="text-base font-medium text-gray-900">{{ $asset->asset_value ? '$' . number_format($asset->asset_value, 2) : 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Purchase Date</p>
+                            <p class="text-base font-medium text-gray-900">{{ $asset->purchase_date?->format('F d, Y') ?? 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Condition</p>
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                @if($asset->condition === 'new') bg-green-100 text-green-800
+                                @elseif($asset->condition === 'good') bg-blue-100 text-blue-800
+                                @elseif($asset->condition === 'fair') bg-yellow-100 text-yellow-800
+                                @else bg-red-100 text-red-800
+                                @endif">
+                                {{ ucfirst($asset->condition ?? 'good') }}
+                            </span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Warranty Period</p>
+                            <p class="text-base font-medium text-gray-900">{{ $asset->warranty_period ?? 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Warranty Expiry</p>
+                            <p class="text-base font-medium text-gray-900">{{ $asset->warranty_expiry?->format('F d, Y') ?? 'N/A' }}</p>
+                        </div>
+                        <div>
                             <p class="text-sm text-gray-500">Status</p>
                             @php
                                 $statusColors = [
@@ -64,10 +91,22 @@
                             <p class="text-base font-medium text-gray-900">{{ $asset->return_date?->format('F d, Y') }}</p>
                         </div>
                         @endif
+                        @if($asset->depreciation_value)
+                        <div>
+                            <p class="text-sm text-gray-500">Loss/Depreciation Amount</p>
+                            <p class="text-base font-medium text-red-600">${{ number_format($asset->depreciation_value, 2) }}</p>
+                        </div>
+                        @endif
                         @if($asset->description)
                         <div class="md:col-span-2">
                             <p class="text-sm text-gray-500">Description</p>
                             <p class="text-base text-gray-900">{{ $asset->description }}</p>
+                        </div>
+                        @endif
+                        @if($asset->damage_notes)
+                        <div class="md:col-span-2">
+                            <p class="text-sm text-gray-500">Damage/Loss Notes</p>
+                            <p class="text-base text-gray-900">{{ $asset->damage_notes }}</p>
                         </div>
                         @endif
                         @if($asset->return_notes)
