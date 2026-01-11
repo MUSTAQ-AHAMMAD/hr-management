@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 
@@ -222,8 +223,8 @@ class UserController extends Controller
     private function notifyITTeamForNewEmployee(User $user): void
     {
         try {
-            // Get all users with IT department role
-            $itDepartment = Department::where('name', 'LIKE', '%IT%')->first();
+            // Get IT department by type field
+            $itDepartment = Department::where('type', 'IT')->first();
             
             if ($itDepartment) {
                 $itUsers = User::where('department_id', $itDepartment->id)
@@ -236,7 +237,7 @@ class UserController extends Controller
             }
         } catch (\Exception $e) {
             // Log the error but don't fail the user creation
-            \Log::error('Failed to send email to IT team: ' . $e->getMessage());
+            Log::error('Failed to send email to IT team: ' . $e->getMessage());
         }
     }
 
@@ -246,8 +247,8 @@ class UserController extends Controller
     private function notifyHRTeamForEmailUpdate(User $user): void
     {
         try {
-            // Get all users with HR department
-            $hrDepartment = Department::where('name', 'LIKE', '%HR%')->first();
+            // Get HR department by type field
+            $hrDepartment = Department::where('type', 'HR')->first();
             
             if ($hrDepartment) {
                 $hrUsers = User::where('department_id', $hrDepartment->id)
@@ -260,7 +261,7 @@ class UserController extends Controller
             }
         } catch (\Exception $e) {
             // Log the error but don't fail the user update
-            \Log::error('Failed to send email to HR team: ' . $e->getMessage());
+            Log::error('Failed to send email to HR team: ' . $e->getMessage());
         }
     }
 }
