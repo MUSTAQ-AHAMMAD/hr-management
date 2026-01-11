@@ -118,13 +118,13 @@
                                         <div class="flex justify-end space-x-2">
                                             @if(!$employee->email)
                                                 <!-- IT can create email for employee -->
-                                                @can('process onboarding')
+                                                @canany(['process onboarding', 'edit employees'])
                                                 <a href="{{ route('employees.edit-email', $employee) }}" class="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-all duration-200" title="Create Email">
                                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                                     </svg>
                                                 </a>
-                                                @endcan
+                                                @endcanany
                                             @endif
                                             <a href="{{ route('employees.show', $employee) }}" class="p-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded-lg transition-all duration-200">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

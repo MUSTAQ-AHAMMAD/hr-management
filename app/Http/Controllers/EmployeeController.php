@@ -163,10 +163,13 @@ class EmployeeController extends Controller
 
     /**
      * Notify IT team that a new employee needs an email
+     * 
+     * Note: This assumes a department with type='IT' exists in the database.
+     * The seeder creates departments with types: 'IT', 'HR', 'Admin', 'Finance', 'Operations'
      */
     private function notifyITTeamForEmailCreation(Employee $employee)
     {
-        // Get IT department ID
+        // Get IT department ID (type='IT' is set in the seeder)
         $itDepartment = Department::where('type', 'IT')->first();
         
         if (!$itDepartment) {
@@ -216,10 +219,13 @@ class EmployeeController extends Controller
 
     /**
      * Notify HR team that email has been created/updated by IT
+     * 
+     * Note: This assumes a department with type='HR' exists and roles named 
+     * 'Admin' and 'Super Admin' are defined. These are created by the seeder.
      */
     private function notifyHRTeamEmailUpdated(Employee $employee)
     {
-        // Get HR department ID
+        // Get HR department ID (type='HR' is set in the seeder)
         $hrDepartment = Department::where('type', 'HR')->first();
         
         // Get HR department users
@@ -234,6 +240,7 @@ class EmployeeController extends Controller
         }
         
         // Also get all Admin and Super Admin users regardless of department
+        // Role names 'Admin' and 'Super Admin' are defined in the seeder
         $adminUsers = User::whereHas('roles', function($roleQuery) {
             $roleQuery->whereIn('name', ['Admin', 'Super Admin']);
         })->get();
