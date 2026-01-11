@@ -122,21 +122,50 @@
             @if($employee->onboardingRequests->count() > 0)
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Onboarding Requests</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg class="h-6 w-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                        </svg>
+                        Onboarding History
+                    </h3>
                     <div class="space-y-4">
                         @foreach($employee->onboardingRequests as $request)
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <div class="flex justify-between items-start">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <p class="font-medium text-gray-900">Request #{{ $request->id }}</p>
-                                    <p class="text-sm text-gray-500">Created: {{ $request->created_at->format('F d, Y') }}</p>
+                                    <p class="font-medium text-gray-900 text-lg">Request #{{ $request->id }}</p>
+                                    <p class="text-sm text-gray-500">Created: {{ $request->created_at->format('F d, Y h:i A') }}</p>
+                                    @if($request->expected_completion_date)
+                                    <p class="text-sm text-gray-500">Expected Completion: {{ $request->expected_completion_date->format('F d, Y') }}</p>
+                                    @endif
                                 </div>
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     {{ $request->status === 'completed' ? 'bg-green-100 text-green-800' : 
                                        ($request->status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
-                                    {{ ucfirst($request->status) }}
+                                    {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                                 </span>
                             </div>
+                            
+                            @if($request->taskAssignments->count() > 0)
+                            <div class="mt-3 pt-3 border-t border-gray-200">
+                                <p class="text-sm font-semibold text-gray-700 mb-2">Tasks:</p>
+                                <div class="space-y-2">
+                                    @foreach($request->taskAssignments as $assignment)
+                                    <div class="flex items-center justify-between bg-purple-50 p-2 rounded">
+                                        <div class="flex-1">
+                                            <span class="text-sm font-medium text-gray-900">{{ $assignment->task->name }}</span>
+                                            <span class="text-xs text-gray-500 ml-2">({{ $assignment->task->department->name }})</span>
+                                        </div>
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                            {{ $assignment->status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                               ($assignment->status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
+                                            {{ ucfirst(str_replace('_', ' ', $assignment->status)) }}
+                                        </span>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
                         </div>
                         @endforeach
                     </div>
@@ -148,20 +177,79 @@
             @if($employee->exitClearanceRequests->count() > 0)
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Exit Clearance Requests</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg class="h-6 w-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Exit Clearance History
+                    </h3>
                     <div class="space-y-4">
                         @foreach($employee->exitClearanceRequests as $request)
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <div class="flex justify-between items-start">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <p class="font-medium text-gray-900">Request #{{ $request->id }}</p>
-                                    <p class="text-sm text-gray-500">Created: {{ $request->created_at->format('F d, Y') }}</p>
+                                    <p class="font-medium text-gray-900 text-lg">Request #{{ $request->id }}</p>
+                                    <p class="text-sm text-gray-500">Created: {{ $request->created_at->format('F d, Y h:i A') }}</p>
+                                    @if($request->exit_date)
+                                    <p class="text-sm text-gray-500">Exit Date: {{ $request->exit_date->format('F d, Y') }}</p>
+                                    @endif
+                                    @if($request->line_manager_name)
+                                    <p class="text-sm text-gray-500">Line Manager: {{ $request->line_manager_name }}</p>
+                                    @endif
                                 </div>
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {{ $request->status === 'completed' ? 'bg-green-100 text-green-800' : 
-                                       ($request->status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
-                                    {{ ucfirst($request->status) }}
-                                </span>
+                                <div class="text-right">
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {{ $request->status === 'cleared' ? 'bg-green-100 text-green-800' : 
+                                           ($request->status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 
+                                           ($request->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')) }}">
+                                        {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                    </span>
+                                    @if($request->line_manager_approval_status)
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        LM: 
+                                        <span class="font-semibold {{ $request->line_manager_approval_status === 'approved' ? 'text-green-600' : 'text-red-600' }}">
+                                            {{ ucfirst($request->line_manager_approval_status) }}
+                                        </span>
+                                    </p>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            @if($request->reason)
+                            <div class="mt-2 p-2 bg-gray-50 rounded text-sm text-gray-700">
+                                <strong>Reason:</strong> {{ $request->reason }}
+                            </div>
+                            @endif
+                            
+                            @if($request->taskAssignments->count() > 0)
+                            <div class="mt-3 pt-3 border-t border-gray-200">
+                                <p class="text-sm font-semibold text-gray-700 mb-2">Clearance Tasks:</p>
+                                <div class="space-y-2">
+                                    @foreach($request->taskAssignments as $assignment)
+                                    <div class="flex items-center justify-between bg-orange-50 p-2 rounded">
+                                        <div class="flex-1">
+                                            <span class="text-sm font-medium text-gray-900">{{ $assignment->task->name }}</span>
+                                            <span class="text-xs text-gray-500 ml-2">({{ $assignment->task->department->name }})</span>
+                                            @if($assignment->completed_date)
+                                            <span class="text-xs text-gray-400 ml-2">- {{ $assignment->completed_date->format('M d, Y') }}</span>
+                                            @endif
+                                        </div>
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                            {{ $assignment->status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                               ($assignment->status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 
+                                               ($assignment->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')) }}">
+                                            {{ ucfirst(str_replace('_', ' ', $assignment->status)) }}
+                                        </span>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                            
+                            <div class="mt-3 pt-3 border-t border-gray-200">
+                                <a href="{{ route('exit-clearance-requests.show', $request) }}" class="text-sm text-cobalt-600 hover:text-cobalt-900 font-semibold">
+                                    View Full Details →
+                                </a>
                             </div>
                         </div>
                         @endforeach
@@ -174,7 +262,12 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Assigned Assets</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <svg class="h-6 w-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Asset History
+                        </h3>
                         @can('create assets')
                         <a href="{{ route('assets.create', ['employee_id' => $employee->id]) }}" class="inline-flex items-center px-4 py-2 bg-cobalt-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-cobalt-700 focus:outline-none focus:ring-2 focus:ring-cobalt-500 focus:ring-offset-2 transition ease-in-out duration-150">
                             <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,6 +287,7 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Serial Number</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Date</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Return Date</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acceptance</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -201,21 +295,40 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($employee->assets as $asset)
-                                <tr>
+                                <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">{{ $asset->asset_name }}</div>
                                         @if($asset->asset_value)
                                         <div class="text-sm text-gray-500">Value: ${{ number_format($asset->asset_value, 2) }}</div>
                                         @endif
+                                        @if($asset->description)
+                                        <div class="text-xs text-gray-400 mt-1">{{ Str::limit($asset->description, 30) }}</div>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $asset->asset_type }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $asset->serial_number ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $asset->assigned_date?->format('M d, Y') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 font-mono">{{ $asset->serial_number ?? 'N/A' }}</div>
+                                        @if($asset->condition)
+                                        <div class="text-xs text-gray-500">Condition: {{ ucfirst($asset->condition) }}</div>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $asset->assigned_date?->format('M d, Y') }}
+                                        @if($asset->assignedBy)
+                                        <div class="text-xs text-gray-400">by {{ $asset->assignedBy->name }}</div>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $asset->return_date?->format('M d, Y') ?? '—' }}
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($asset->acceptance_status === 'accepted')
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                             Accepted
                                         </span>
+                                        @if($asset->acceptance_date)
+                                        <div class="text-xs text-gray-400 mt-1">{{ $asset->acceptance_date->format('M d, Y') }}</div>
+                                        @endif
                                         @elseif($asset->acceptance_status === 'rejected')
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                             Rejected

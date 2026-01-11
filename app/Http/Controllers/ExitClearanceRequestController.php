@@ -169,7 +169,7 @@ class ExitClearanceRequestController extends Controller
     }
 
     /**
-     * Line manager approves the exit clearance request.
+     * Show line manager approval page.
      */
     public function lineManagerApprove(Request $request, ExitClearanceRequest $exitClearanceRequest)
     {
@@ -181,10 +181,21 @@ class ExitClearanceRequestController extends Controller
                 ->with('error', 'Invalid or expired approval link.');
         }
 
+        // If this is a GET request, show the approval page
+        if ($request->isMethod('get')) {
+            $exitClearanceRequest->load(['employee.department', 'employee.assets', 'initiatedBy']);
+            return view('exit-clearance-requests.line-manager-approval', compact('exitClearanceRequest', 'token'));
+        }
+
+        // POST request - process the approval
+        $validated = $request->validate([
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
         $exitClearanceRequest->update([
             'line_manager_approval_status' => 'approved',
             'line_manager_approved_at' => now(),
-            'line_manager_approval_notes' => $request->input('notes', 'Approved via email link'),
+            'line_manager_approval_notes' => $validated['notes'] ?? 'Approved via email link',
         ]);
 
         \Cache::forget('exit_approval_' . $exitClearanceRequest->id);
@@ -194,7 +205,7 @@ class ExitClearanceRequestController extends Controller
     }
 
     /**
-     * Line manager rejects the exit clearance request.
+     * Show line manager reject page.
      */
     public function lineManagerReject(Request $request, ExitClearanceRequest $exitClearanceRequest)
     {
@@ -206,10 +217,21 @@ class ExitClearanceRequestController extends Controller
                 ->with('error', 'Invalid or expired approval link.');
         }
 
+        // If this is a GET request, show the rejection page
+        if ($request->isMethod('get')) {
+            $exitClearanceRequest->load(['employee.department', 'employee.assets', 'initiatedBy']);
+            return view('exit-clearance-requests.line-manager-rejection', compact('exitClearanceRequest', 'token'));
+        }
+
+        // POST request - process the rejection
+        $validated = $request->validate([
+            'notes' => 'required|string|max:1000',
+        ]);
+
         $exitClearanceRequest->update([
             'line_manager_approval_status' => 'rejected',
             'line_manager_approved_at' => now(),
-            'line_manager_approval_notes' => $request->input('notes', 'Rejected via email link'),
+            'line_manager_approval_notes' => $validated['notes'],
             'status' => 'rejected',
         ]);
 
