@@ -18,7 +18,7 @@
                                 <select id="employee_id" name="employee_id" class="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" required>
                                     <option value="">Select Employee</option>
                                     @foreach($employees as $employee)
-                                        <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
+                                        <option value="{{ $employee->id }}" {{ (old('employee_id') == $employee->id || (isset($selectedEmployeeId) && $selectedEmployeeId == $employee->id)) ? 'selected' : '' }}>
                                             {{ $employee->full_name }} ({{ $employee->employee_code }})
                                         </option>
                                     @endforeach

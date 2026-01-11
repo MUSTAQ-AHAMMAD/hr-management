@@ -72,7 +72,12 @@ class OnboardingRequestController extends Controller
             ->orderBy('priority')
             ->get();
 
-        return view('onboarding-requests.create', compact('employees', 'customFields', 'departments', 'onboardingTasks'));
+        // Get potential line managers (users with management roles)
+        $managers = User::whereHas('roles', function($q) {
+            $q->whereIn('name', ['Admin', 'Super Admin', 'Department User']);
+        })->orderBy('name')->get();
+
+        return view('onboarding-requests.create', compact('employees', 'customFields', 'departments', 'onboardingTasks', 'managers'));
     }
 
     /**
@@ -82,6 +87,9 @@ class OnboardingRequestController extends Controller
     {
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
+            'personal_email' => 'nullable|email',
+            'line_manager_id' => 'nullable|exists:users,id',
+            'line_manager_email' => 'nullable|email',
             'expected_completion_date' => 'required|date|after:today',
             'notes' => 'nullable|string',
             'status' => 'nullable|in:pending,in_progress',
@@ -91,6 +99,15 @@ class OnboardingRequestController extends Controller
             'task_ids.*' => 'exists:tasks,id',
             'create_login' => 'nullable|boolean',
         ]);
+
+        // Validate that line manager email matches the selected line manager's email
+        if ($validated['line_manager_id'] && $validated['line_manager_email']) {
+            $lineManager = User::find($validated['line_manager_id']);
+            if ($lineManager && $lineManager->email !== $validated['line_manager_email']) {
+                return back()->with('error', 'Line manager email does not match the selected line manager.')
+                    ->withInput();
+            }
+        }
 
         $validated['initiated_by'] = Auth::id();
         $validated['status'] = $validated['status'] ?? 'pending';
@@ -163,6 +180,27 @@ class OnboardingRequestController extends Controller
 
             \DB::commit();
 
+            // Send email notifications
+            $employee = $onboardingRequest->employee;
+            
+            // Send to personal email if provided
+            if ($onboardingRequest->personal_email) {
+                try {
+                    \Mail::to($onboardingRequest->personal_email)->queue(new \App\Mail\OnboardingCreated($onboardingRequest));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send onboarding email to personal email (' . $onboardingRequest->personal_email . ') for employee #' . $employee->id . ': ' . $e->getMessage());
+                }
+            }
+            
+            // Send to official email if it exists
+            if ($employee->email) {
+                try {
+                    \Mail::to($employee->email)->queue(new \App\Mail\OnboardingCreated($onboardingRequest));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send onboarding email to official email (' . $employee->email . ') for employee #' . $employee->id . ': ' . $e->getMessage());
+                }
+            }
+
             $message = 'Onboarding request created successfully.';
             if ($loginCreated) {
                 $message .= ' Employee user account has been created with default password "password".';
@@ -178,7 +216,8 @@ class OnboardingRequestController extends Controller
         } catch (\Exception $e) {
             \DB::rollBack();
 
-            return back()->with('error', 'Failed to create onboarding request: '.$e->getMessage())
+            \Log::error('Failed to create onboarding request for employee #' . $validated['employee_id'] . ': ' . $e->getMessage());
+            return back()->with('error', 'Failed to create onboarding request for the selected employee. Please try again or contact support.')
                 ->withInput();
         }
     }

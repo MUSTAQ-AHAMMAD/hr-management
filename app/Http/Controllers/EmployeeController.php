@@ -69,7 +69,7 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        $employee->load('department', 'onboardingRequests', 'exitClearanceRequests');
+        $employee->load('department', 'onboardingRequests', 'exitClearanceRequests', 'assets.assignedBy');
 
         return view('employees.show', compact('employee'));
     }

@@ -11,8 +11,13 @@ class ExitClearanceRequest extends Model
 {
     protected $fillable = [
         'employee_id',
+        'line_manager_id',
+        'line_manager_email',
         'initiated_by',
         'status',
+        'line_manager_approval_status',
+        'line_manager_approved_at',
+        'line_manager_approval_notes',
         'exit_date',
         'reason',
         'assets_returned',
@@ -26,6 +31,7 @@ class ExitClearanceRequest extends Model
         'clearance_date' => 'date',
         'assets_returned' => 'boolean',
         'financial_cleared' => 'boolean',
+        'line_manager_approved_at' => 'datetime',
     ];
 
     public function employee(): BelongsTo
@@ -36,6 +42,11 @@ class ExitClearanceRequest extends Model
     public function initiatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'initiated_by');
+    }
+
+    public function lineManager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'line_manager_id');
     }
 
     public function taskAssignments(): MorphMany

@@ -81,6 +81,80 @@
                 </div>
             </div>
 
+            <!-- Line Manager Approval Status -->
+            <div class="bg-white overflow-hidden shadow-2xl rounded-2xl border border-gray-100">
+                <div class="p-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Line Manager Approval</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <p class="text-sm text-gray-500">Line Manager</p>
+                            <p class="text-base font-medium text-gray-900">{{ $exitClearanceRequest->lineManager->name ?? 'N/A' }}</p>
+                            @if($exitClearanceRequest->line_manager_email)
+                                <p class="text-sm text-gray-500">{{ $exitClearanceRequest->line_manager_email }}</p>
+                            @endif
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Approval Status</p>
+                            @php
+                                $approvalStatusColors = [
+                                    'pending' => 'bg-yellow-100 text-yellow-800',
+                                    'approved' => 'bg-green-100 text-green-800',
+                                    'rejected' => 'bg-red-100 text-red-800',
+                                ];
+                            @endphp
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $approvalStatusColors[$exitClearanceRequest->line_manager_approval_status] ?? 'bg-gray-100 text-gray-800' }}">
+                                {{ ucfirst(str_replace('_', ' ', $exitClearanceRequest->line_manager_approval_status)) }}
+                            </span>
+                        </div>
+                        @if($exitClearanceRequest->line_manager_approved_at)
+                            <div>
+                                <p class="text-sm text-gray-500">Approved/Rejected At</p>
+                                <p class="text-base font-medium text-gray-900">{{ $exitClearanceRequest->line_manager_approved_at->format('F d, Y H:i') }}</p>
+                            </div>
+                        @endif
+                        @if($exitClearanceRequest->line_manager_approval_notes)
+                            <div class="md:col-span-3">
+                                <p class="text-sm text-gray-500">Approval Notes</p>
+                                <p class="text-base text-gray-900">{{ $exitClearanceRequest->line_manager_approval_notes }}</p>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    @if($exitClearanceRequest->line_manager_approval_status === 'pending')
+                        <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-yellow-700">
+                                        <strong>Waiting for line manager approval.</strong> An email has been sent to the line manager. Departments cannot be assigned for clearance until the line manager approves this request.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($exitClearanceRequest->line_manager_approval_status === 'rejected')
+                        <div class="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-700">
+                                        <strong>This exit clearance request has been rejected by the line manager.</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    </div>
+                </div>
+            </div>
+
             <!-- Employee Assets -->
             @if($exitClearanceRequest->employee->assets->count() > 0)
             <div class="bg-white overflow-hidden shadow-2xl rounded-2xl border border-gray-100">
@@ -170,7 +244,7 @@
             @endif
 
             <!-- Assign Tasks Form -->
-            @if($exitClearanceRequest->status === 'pending' || $availableTasks->whereNotIn('id', $exitClearanceRequest->taskAssignments->pluck('task_id'))->count() > 0)
+            @if(($exitClearanceRequest->status === 'pending' || $availableTasks->whereNotIn('id', $exitClearanceRequest->taskAssignments->pluck('task_id'))->count() > 0) && $exitClearanceRequest->line_manager_approval_status === 'approved')
             <div class="bg-white overflow-hidden shadow-2xl rounded-2xl border border-gray-100">
                 <div class="p-8">
                     <div class="flex items-center mb-4">
