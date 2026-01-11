@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EmployeeEmailUpdated;
+use App\Mail\NewEmployeeNeedsEmail;
 use App\Models\CustomField;
 use App\Models\Department;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -44,7 +47,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'nullable|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'department_id' => 'nullable|exists:departments,id',
             'phone' => 'nullable|string|max:20',
@@ -57,7 +60,7 @@ class UserController extends Controller
 
             $user = User::create([
                 'name' => $validated['name'],
-                'email' => $validated['email'],
+                'email' => $validated['email'] ?? null,
                 'password' => Hash::make($validated['password']),
                 'department_id' => $validated['department_id'],
                 'phone' => $validated['phone'],
@@ -76,10 +79,15 @@ class UserController extends Controller
                 }
             }
 
+            // Send email to IT team if email is not provided
+            if (empty($validated['email'])) {
+                $this->notifyITTeamForNewEmployee($user);
+            }
+
             DB::commit();
 
             return redirect()->route('users.index')
-                ->with('success', 'User created successfully.');
+                ->with('success', 'User created successfully.' . (empty($validated['email']) ? ' IT team has been notified to create email ID.' : ''));
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -123,7 +131,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->id,
+            'email' => 'nullable|email|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'department_id' => 'nullable|exists:departments,id',
             'phone' => 'nullable|string|max:20',
@@ -134,9 +142,14 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
 
+            // Check if email is being updated from null to a value
+            $emailWasNull = empty($user->email);
+            $emailIsBeingSet = !empty($validated['email']);
+            $shouldNotifyHR = $emailWasNull && $emailIsBeingSet;
+
             $updateData = [
                 'name' => $validated['name'],
-                'email' => $validated['email'],
+                'email' => $validated['email'] ?? null,
                 'department_id' => $validated['department_id'],
                 'phone' => $validated['phone'],
                 'status' => $validated['status'],
@@ -161,10 +174,20 @@ class UserController extends Controller
                 }
             }
 
+            // Notify HR team if email was added
+            if ($shouldNotifyHR) {
+                $this->notifyHRTeamForEmailUpdate($user);
+            }
+
             DB::commit();
 
+            $message = 'User updated successfully.';
+            if ($shouldNotifyHR) {
+                $message .= ' HR team has been notified about the email update.';
+            }
+
             return redirect()->route('users.index')
-                ->with('success', 'User updated successfully.');
+                ->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -190,6 +213,54 @@ class UserController extends Controller
                 ->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to delete user: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Notify IT team that a new employee needs an email ID.
+     */
+    private function notifyITTeamForNewEmployee(User $user): void
+    {
+        try {
+            // Get all users with IT department role
+            $itDepartment = Department::where('name', 'IT')->first();
+            
+            if ($itDepartment) {
+                $itUsers = User::where('department_id', $itDepartment->id)
+                    ->whereNotNull('email')
+                    ->get();
+                
+                foreach ($itUsers as $itUser) {
+                    Mail::to($itUser->email)->send(new NewEmployeeNeedsEmail($user));
+                }
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't fail the user creation
+            \Log::error('Failed to send email to IT team: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Notify HR team that an employee's email has been updated.
+     */
+    private function notifyHRTeamForEmailUpdate(User $user): void
+    {
+        try {
+            // Get all users with HR department
+            $hrDepartment = Department::where('name', 'HR')->first();
+            
+            if ($hrDepartment) {
+                $hrUsers = User::where('department_id', $hrDepartment->id)
+                    ->whereNotNull('email')
+                    ->get();
+                
+                foreach ($hrUsers as $hrUser) {
+                    Mail::to($hrUser->email)->send(new EmployeeEmailUpdated($user));
+                }
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't fail the user update
+            \Log::error('Failed to send email to HR team: ' . $e->getMessage());
         }
     }
 }
