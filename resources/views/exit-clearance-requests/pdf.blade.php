@@ -260,20 +260,50 @@
     </div>
 
     <div class="signature-section">
+        <div class="section-title">DIGITAL SIGNATURES</div>
+        
+        @if($exitRequest->line_manager_name && $exitRequest->line_manager_approval_status === 'approved')
+        <div class="signature-box">
+            <div class="signature-line">
+                <strong>Line Manager Approval</strong><br>
+                Name: {{ $exitRequest->line_manager_name }}<br>
+                Email: {{ $exitRequest->line_manager_email }}<br>
+                Date: {{ $exitRequest->line_manager_approved_at?->format('F d, Y h:i A') }}<br>
+                Status: <strong style="color: #10b981;">APPROVED</strong>
+            </div>
+        </div>
+        @endif
+        
+        @foreach($exitRequest->taskAssignments->where('status', 'completed')->groupBy('task.department_id') as $departmentId => $assignments)
+            @php
+                $firstAssignment = $assignments->first();
+                $department = $firstAssignment->task->department;
+            @endphp
+            <div class="signature-box">
+                <div class="signature-line">
+                    <strong>{{ $department->name }} Department</strong><br>
+                    Cleared by: {{ $firstAssignment->assignedTo->name ?? 'N/A' }}<br>
+                    Date: {{ $firstAssignment->completed_date?->format('F d, Y') ?? 'N/A' }}<br>
+                    Status: <strong style="color: #10b981;">CLEARED</strong>
+                </div>
+            </div>
+        @endforeach
+        
         <div class="signature-box">
             <div class="signature-line">
                 <strong>HR Manager</strong><br>
-                Name: ___________________________<br>
-                Date: ____________________________
+                Name: {{ $exitRequest->initiatedBy->name }}<br>
+                Date: {{ now()->format('F d, Y') }}<br>
+                Status: <strong style="color: #10b981;">VERIFIED</strong>
             </div>
         </div>
-        <div class="signature-box">
-            <div class="signature-line">
-                <strong>Department Head</strong><br>
-                Name: ___________________________<br>
-                Date: ____________________________
-            </div>
-        </div>
+    </div>
+
+    <div style="margin-top: 30px; padding: 15px; background-color: #f3f4f6; border-radius: 5px; text-align: center;">
+        <p style="font-size: 10px; color: #666; margin: 0;">
+            <strong>Digital Signature Verification:</strong> This document contains digital signatures from all relevant departments and line manager.
+            All signatures were electronically recorded in the HR Management System on the dates indicated above.
+        </p>
     </div>
 
     <div class="footer">

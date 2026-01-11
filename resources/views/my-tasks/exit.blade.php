@@ -163,27 +163,85 @@
                                 <tr id="task-{{ $assignment->id }}" class="hidden bg-orange-50">
                                     <td colspan="6" class="px-6 py-4">
                                         <div class="border border-orange-200 rounded-lg p-4 bg-white">
-                                            <h4 class="font-semibold text-gray-900 mb-3">Update Task Status</h4>
+                                            <h4 class="font-semibold text-gray-900 mb-3 text-lg">Update Task Status</h4>
+                                            
+                                            <!-- Employee Assets Information -->
+                                            @if($assignment->assignable && $assignment->assignable->employee && $assignment->assignable->employee->assets->count() > 0)
+                                            <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                                <h5 class="font-semibold text-blue-900 mb-3 flex items-center">
+                                                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                    </svg>
+                                                    Assets Assigned to Employee
+                                                </h5>
+                                                <div class="overflow-x-auto">
+                                                    <table class="min-w-full divide-y divide-blue-200">
+                                                        <thead>
+                                                            <tr class="bg-blue-100">
+                                                                <th class="px-3 py-2 text-left text-xs font-bold text-blue-900 uppercase">Asset Type</th>
+                                                                <th class="px-3 py-2 text-left text-xs font-bold text-blue-900 uppercase">Asset Name</th>
+                                                                <th class="px-3 py-2 text-left text-xs font-bold text-blue-900 uppercase">Serial Number</th>
+                                                                <th class="px-3 py-2 text-left text-xs font-bold text-blue-900 uppercase">Assigned Date</th>
+                                                                <th class="px-3 py-2 text-left text-xs font-bold text-blue-900 uppercase">Status</th>
+                                                                <th class="px-3 py-2 text-left text-xs font-bold text-blue-900 uppercase">Additional Details</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-blue-100">
+                                                            @foreach($assignment->assignable->employee->assets as $asset)
+                                                            <tr class="hover:bg-blue-50">
+                                                                <td class="px-3 py-2 text-sm text-gray-900">{{ $asset->asset_type }}</td>
+                                                                <td class="px-3 py-2 text-sm font-medium text-gray-900">{{ $asset->asset_name }}</td>
+                                                                <td class="px-3 py-2 text-sm text-gray-700">{{ $asset->serial_number ?? 'N/A' }}</td>
+                                                                <td class="px-3 py-2 text-sm text-gray-700">{{ $asset->assigned_date?->format('M d, Y') ?? 'N/A' }}</td>
+                                                                <td class="px-3 py-2">
+                                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                                                        {{ $asset->status === 'assigned' ? 'bg-blue-100 text-blue-800' : 
+                                                                           ($asset->status === 'returned' ? 'bg-green-100 text-green-800' : 
+                                                                           ($asset->status === 'damaged' ? 'bg-red-100 text-red-800' : 
+                                                                           'bg-gray-100 text-gray-800')) }}">
+                                                                        {{ ucfirst($asset->status) }}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="px-3 py-2 text-sm text-gray-600">
+                                                                    @if($asset->description)
+                                                                        {{ Str::limit($asset->description, 50) }}
+                                                                    @else
+                                                                        <span class="text-gray-400">—</span>
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            @endif
+                                            
                                             <form action="{{ route('task-assignments.update-status', $assignment) }}" method="POST">
                                                 @csrf
-                                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                    <div>
-                                                        <label class="block text-xs font-medium text-gray-700 mb-1">Update Status</label>
-                                                        <select name="status" class="block w-full border-gray-300 focus:border-cobalt-500 focus:ring-cobalt-500 rounded-md shadow-sm text-sm">
-                                                            <option value="in_progress" {{ $assignment->status === 'in_progress' ? 'selected' : '' }}>Mark In Progress</option>
-                                                            <option value="completed">Mark Completed</option>
-                                                            <option value="rejected">Reject Task</option>
-                                                        </select>
+                                                <div class="grid grid-cols-1 gap-4">
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 mb-1">Update Status</label>
+                                                            <select name="status" class="block w-full border-gray-300 focus:border-cobalt-500 focus:ring-cobalt-500 rounded-md shadow-sm text-sm">
+                                                                <option value="in_progress" {{ $assignment->status === 'in_progress' ? 'selected' : '' }}>Mark In Progress</option>
+                                                                <option value="completed">Mark Completed</option>
+                                                                <option value="rejected">Reject Task</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 mb-1">Notes</label>
+                                                            <textarea name="notes" rows="2" placeholder="Add notes about task completion, asset returns, etc..." class="block w-full border-gray-300 focus:border-cobalt-500 focus:ring-cobalt-500 rounded-md shadow-sm text-sm">{{ $assignment->notes }}</textarea>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <label class="block text-xs font-medium text-gray-700 mb-1">Notes (Optional)</label>
-                                                        <input type="text" name="notes" placeholder="Add notes..." class="block w-full border-gray-300 focus:border-cobalt-500 focus:ring-cobalt-500 rounded-md shadow-sm text-sm" value="{{ $assignment->notes }}">
-                                                    </div>
-                                                    <div class="flex items-end gap-2">
-                                                        <button type="submit" class="flex-1 inline-flex justify-center items-center px-4 py-2 bg-cobalt-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-cobalt-700 focus:outline-none focus:ring-2 focus:ring-cobalt-500 focus:ring-offset-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
-                                                            Update
+                                                    <div class="flex items-center gap-2 pt-2">
+                                                        <button type="submit" class="inline-flex justify-center items-center px-6 py-2 bg-cobalt-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-cobalt-700 focus:outline-none focus:ring-2 focus:ring-cobalt-500 focus:ring-offset-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                                                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                            Update Task
                                                         </button>
-                                                        <button type="button" onclick="toggleTaskDetail('task-{{ $assignment->id }}')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-xs font-semibold uppercase hover:bg-gray-300 transition-all duration-200">
+                                                        <button type="button" onclick="toggleTaskDetail('task-{{ $assignment->id }}')" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-md text-xs font-semibold uppercase hover:bg-gray-300 transition-all duration-200">
                                                             Cancel
                                                         </button>
                                                     </div>
