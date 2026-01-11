@@ -11,6 +11,7 @@ use App\Mail\EmployeeEmailUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EmployeeController extends Controller
 {
@@ -168,29 +169,47 @@ class EmployeeController extends Controller
         // Get IT department ID
         $itDepartment = Department::where('type', 'IT')->first();
         
-        if ($itDepartment) {
-            // Get all users in IT department
-            $itUsers = User::where('department_id', $itDepartment->id)->get();
+        if (!$itDepartment) {
+            Log::warning('IT department not found when trying to notify about new employee needing email', [
+                'employee_id' => $employee->id,
+                'employee_code' => $employee->employee_code,
+            ]);
+            return;
+        }
+        
+        // Get all users in IT department
+        $itUsers = User::where('department_id', $itDepartment->id)->get();
+        
+        if ($itUsers->isEmpty()) {
+            Log::warning('No IT users found to notify about new employee needing email', [
+                'employee_id' => $employee->id,
+                'employee_code' => $employee->employee_code,
+            ]);
+            return;
+        }
+        
+        foreach ($itUsers as $itUser) {
+            // Create in-app notification
+            Notification::create([
+                'user_id' => $itUser->id,
+                'title' => 'New Employee Needs Email ID',
+                'message' => "A new employee {$employee->full_name} (Code: {$employee->employee_code}) has been added and needs an email ID to be created.",
+                'type' => 'email_creation_required',
+                'notifiable_type' => Employee::class,
+                'notifiable_id' => $employee->id,
+                'is_read' => false,
+            ]);
             
-            foreach ($itUsers as $itUser) {
-                // Create in-app notification
-                Notification::create([
-                    'user_id' => $itUser->id,
-                    'title' => 'New Employee Needs Email ID',
-                    'message' => "A new employee {$employee->full_name} (Code: {$employee->employee_code}) has been added and needs an email ID to be created.",
-                    'type' => 'email_creation_required',
-                    'notifiable_type' => Employee::class,
-                    'notifiable_id' => $employee->id,
-                    'is_read' => false,
+            // Send email notification
+            try {
+                Mail::to($itUser->email)->queue(new NewEmployeeNeedsEmail($employee));
+            } catch (\Exception $e) {
+                // Log the error but don't fail the request
+                Log::error('Failed to send email notification to IT', [
+                    'error' => $e->getMessage(),
+                    'it_user_id' => $itUser->id,
+                    'employee_id' => $employee->id,
                 ]);
-                
-                // Send email notification
-                try {
-                    Mail::to($itUser->email)->queue(new NewEmployeeNeedsEmail($employee));
-                } catch (\Exception $e) {
-                    // Log the error but don't fail the request
-                    \Log::error('Failed to send email notification to IT: ' . $e->getMessage());
-                }
             }
         }
     }
@@ -203,33 +222,53 @@ class EmployeeController extends Controller
         // Get HR department ID
         $hrDepartment = Department::where('type', 'HR')->first();
         
-        if ($hrDepartment) {
-            // Get all users in HR department with appropriate permissions
-            $hrUsers = User::where('department_id', $hrDepartment->id)
-                ->orWhereHas('roles', function($query) {
-                    $query->whereIn('name', ['Admin', 'Super Admin']);
-                })
-                ->get();
+        if (!$hrDepartment) {
+            Log::warning('HR department not found when trying to notify about email creation', [
+                'employee_id' => $employee->id,
+                'employee_code' => $employee->employee_code,
+            ]);
+        }
+        
+        // Get all users in HR department OR users with Admin/Super Admin roles
+        $hrUsers = User::where(function($query) use ($hrDepartment) {
+            if ($hrDepartment) {
+                $query->where('department_id', $hrDepartment->id);
+            }
+            $query->orWhereHas('roles', function($roleQuery) {
+                $roleQuery->whereIn('name', ['Admin', 'Super Admin']);
+            });
+        })->get();
+        
+        if ($hrUsers->isEmpty()) {
+            Log::warning('No HR users or admins found to notify about email creation', [
+                'employee_id' => $employee->id,
+                'employee_code' => $employee->employee_code,
+            ]);
+            return;
+        }
+        
+        foreach ($hrUsers as $hrUser) {
+            // Create in-app notification
+            Notification::create([
+                'user_id' => $hrUser->id,
+                'title' => 'Employee Email ID Created',
+                'message' => "Email ID ({$employee->email}) has been created for employee {$employee->full_name} (Code: {$employee->employee_code}). The employee is now ready for onboarding.",
+                'type' => 'email_created',
+                'notifiable_type' => Employee::class,
+                'notifiable_id' => $employee->id,
+                'is_read' => false,
+            ]);
             
-            foreach ($hrUsers as $hrUser) {
-                // Create in-app notification
-                Notification::create([
-                    'user_id' => $hrUser->id,
-                    'title' => 'Employee Email ID Created',
-                    'message' => "Email ID ({$employee->email}) has been created for employee {$employee->full_name} (Code: {$employee->employee_code}). The employee is now ready for onboarding.",
-                    'type' => 'email_created',
-                    'notifiable_type' => Employee::class,
-                    'notifiable_id' => $employee->id,
-                    'is_read' => false,
+            // Send email notification
+            try {
+                Mail::to($hrUser->email)->queue(new EmployeeEmailUpdated($employee));
+            } catch (\Exception $e) {
+                // Log the error but don't fail the request
+                Log::error('Failed to send email notification to HR', [
+                    'error' => $e->getMessage(),
+                    'hr_user_id' => $hrUser->id,
+                    'employee_id' => $employee->id,
                 ]);
-                
-                // Send email notification
-                try {
-                    Mail::to($hrUser->email)->queue(new EmployeeEmailUpdated($employee));
-                } catch (\Exception $e) {
-                    // Log the error but don't fail the request
-                    \Log::error('Failed to send email notification to HR: ' . $e->getMessage());
-                }
             }
         }
     }

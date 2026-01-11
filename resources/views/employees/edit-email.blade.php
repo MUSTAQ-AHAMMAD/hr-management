@@ -68,7 +68,7 @@
                                 :value="old('email')" 
                                 required 
                                 autofocus 
-                                placeholder="e.g., {{ strtolower(str_replace(' ', '.', $employee->full_name)) }}@company.com"
+                                placeholder="e.g., {{ strtolower(str_replace(' ', '.', $employee->full_name)) }}@yourcompany.com"
                             />
                             <p class="mt-1 text-sm text-gray-500">Enter the company email address you've created for this employee</p>
                             <x-input-error class="mt-2" :messages="$errors->get('email')" />

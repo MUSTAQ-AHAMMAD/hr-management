@@ -29,11 +29,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('employees', function (Blueprint $table) {
-            // Revert email to not nullable (with caution)
-            $table->string('email')->nullable(false)->change();
-            
             // Drop the tracking fields
             $table->dropColumn(['email_created_by_it', 'email_created_at']);
+            
+            // Note: We cannot safely revert email to not nullable if there are 
+            // existing records with null emails. This would require manual cleanup.
+            // Uncomment the following line only if you're sure no null emails exist:
+            // $table->string('email')->nullable(false)->change();
         });
     }
 };
