@@ -37,10 +37,11 @@ class AssetController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $employees = Employee::whereIn('status', ['active', 'onboarding'])->get();
-        return view('assets.create', compact('employees'));
+        $selectedEmployeeId = $request->query('employee_id');
+        return view('assets.create', compact('employees', 'selectedEmployeeId'));
     }
 
     /**
@@ -64,12 +65,26 @@ class AssetController extends Controller
 
         $validated['assigned_by'] = Auth::id();
         $validated['status'] = 'assigned';
+        $validated['acceptance_status'] = 'pending_acceptance';
         $validated['condition'] = $validated['condition'] ?? 'good';
 
-        Asset::create($validated);
+        $asset = Asset::create($validated);
+
+        // Create notification for employee if they have a user account
+        $employee = Employee::find($validated['employee_id']);
+        if ($employee->user_id) {
+            Notification::create([
+                'user_id' => $employee->user_id,
+                'title' => 'New Asset Assigned',
+                'message' => "A new asset '{$asset->asset_name}' ({$asset->asset_type}) has been assigned to you. Please collect it and confirm acceptance.",
+                'type' => 'info',
+                'notifiable_type' => Asset::class,
+                'notifiable_id' => $asset->id,
+            ]);
+        }
 
         return redirect()->route('assets.index')
-            ->with('success', 'Asset assigned successfully.');
+            ->with('success', 'Asset assigned successfully.' . ($employee->user_id ? ' Employee has been notified.' : ' Note: Employee has no user account to receive notification.'));
     }
 
     /**
