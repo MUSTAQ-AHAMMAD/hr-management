@@ -69,7 +69,18 @@
                                         <div class="text-sm font-medium text-gray-900">{{ $employee->full_name }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-600">{{ $employee->email }}</div>
+                                        <div class="text-sm text-gray-600">
+                                            @if($employee->email)
+                                                {{ $employee->email }}
+                                                @if($employee->email_created_by_it)
+                                                    <span class="ml-1 text-xs text-green-600" title="Email created by IT">✓</span>
+                                                @endif
+                                            @else
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    Pending IT
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-3 py-1.5 inline-flex text-xs font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 shadow-sm">
@@ -105,6 +116,16 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex justify-end space-x-2">
+                                            @if(!$employee->email)
+                                                <!-- IT can create email for employee -->
+                                                @can('process onboarding')
+                                                <a href="{{ route('employees.edit-email', $employee) }}" class="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-all duration-200" title="Create Email">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                                    </svg>
+                                                </a>
+                                                @endcan
+                                            @endif
                                             <a href="{{ route('employees.show', $employee) }}" class="p-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded-lg transition-all duration-200">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>

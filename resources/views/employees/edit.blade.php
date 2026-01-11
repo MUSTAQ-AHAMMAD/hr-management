@@ -23,8 +23,8 @@
 
                             <!-- Email -->
                             <div>
-                                <x-input-label for="email" :value="__('Email')" />
-                                <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $employee->email)" required />
+                                <x-input-label for="email" :value="__('Email (Optional)')" />
+                                <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $employee->email)" />
                                 <x-input-error class="mt-2" :messages="$errors->get('email')" />
                             </div>
 
