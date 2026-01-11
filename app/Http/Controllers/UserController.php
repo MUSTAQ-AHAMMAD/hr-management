@@ -223,7 +223,7 @@ class UserController extends Controller
     {
         try {
             // Get all users with IT department role
-            $itDepartment = Department::where('name', 'IT')->first();
+            $itDepartment = Department::where('name', 'LIKE', '%IT%')->first();
             
             if ($itDepartment) {
                 $itUsers = User::where('department_id', $itDepartment->id)
@@ -247,7 +247,7 @@ class UserController extends Controller
     {
         try {
             // Get all users with HR department
-            $hrDepartment = Department::where('name', 'HR')->first();
+            $hrDepartment = Department::where('name', 'LIKE', '%HR%')->first();
             
             if ($hrDepartment) {
                 $hrUsers = User::where('department_id', $hrDepartment->id)
