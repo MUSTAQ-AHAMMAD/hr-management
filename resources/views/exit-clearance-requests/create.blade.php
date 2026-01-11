@@ -118,35 +118,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div>
-                                <x-input-label :value="__('Select Departments for Clearance')" class="mb-2" />
-                                <div class="space-y-2 border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                    @foreach($departments as $department)
-                                        <div class="flex items-start p-3 bg-white rounded-lg border border-gray-200 hover:border-cobalt-300 hover:shadow-sm transition-all duration-150">
-                                            <input type="checkbox" name="department_ids[]" value="{{ $department->id }}" id="dept_{{ $department->id }}" class="mt-1 rounded border-gray-300 text-cobalt-600 focus:ring-cobalt-500">
-                                            <label for="dept_{{ $department->id }}" class="ml-3 text-sm cursor-pointer flex-1">
-                                                <span class="font-semibold text-gray-900 flex items-center">
-                                                    <svg class="h-4 w-4 mr-2 text-cobalt-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                                    </svg>
-                                                    {{ $department->name }}
-                                                </span>
-                                                @if($department->description)
-                                                    <span class="block text-gray-500 mt-1">{{ $department->description }}</span>
-                                                @endif
-                                            </label>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <p class="mt-2 text-sm text-gray-600 flex items-start">
-                                    <svg class="h-5 w-5 text-cobalt-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span>Select departments that need to clear the employee. Tasks will be auto-assigned to selected departments.</span>
-                                </p>
-                                <x-input-error class="mt-2" :messages="$errors->get('department_ids')" />
-                            </div>
                         </div>
 
                         <div class="flex items-center justify-end mt-6 space-x-3">

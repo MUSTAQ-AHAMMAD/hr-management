@@ -73,6 +73,21 @@
                             <p class="text-sm text-gray-500">Actual Completion Date</p>
                             <p class="text-base font-medium text-gray-900">{{ $onboardingRequest->actual_completion_date?->format('F d, Y') ?? 'Not completed yet' }}</p>
                         </div>
+                        @if($onboardingRequest->personal_email)
+                        <div>
+                            <p class="text-sm text-gray-500">Personal Email</p>
+                            <p class="text-base font-medium text-gray-900">{{ $onboardingRequest->personal_email }}</p>
+                        </div>
+                        @endif
+                        @if($onboardingRequest->line_manager_id)
+                        <div>
+                            <p class="text-sm text-gray-500">Line Manager</p>
+                            <p class="text-base font-medium text-gray-900">{{ $onboardingRequest->lineManager->name ?? 'N/A' }}</p>
+                            @if($onboardingRequest->line_manager_email)
+                                <p class="text-sm text-gray-500">{{ $onboardingRequest->line_manager_email }}</p>
+                            @endif
+                        </div>
+                        @endif
                         @if($onboardingRequest->notes)
                         <div class="col-span-2">
                             <p class="text-sm text-gray-500">Notes</p>
