@@ -39,9 +39,15 @@
                                     @foreach($onboardingRequest->taskAssignments as $assignment)
                                     <div class="bg-white rounded-lg p-3 border border-blue-200">
                                         <div class="flex items-center justify-between">
-                                            <div>
+                                            <div class="flex-1">
                                                 <span class="font-medium text-gray-900">{{ $assignment->task->name }}</span>
-                                                <p class="text-sm text-gray-600">{{ $assignment->task->department->name }} - {{ $assignment->task->description }}</p>
+                                                <p class="text-sm text-gray-600">{{ $assignment->task->department->name }}</p>
+                                                @if($assignment->task->description)
+                                                <p class="text-xs text-gray-500 mt-1">{{ $assignment->task->description }}</p>
+                                                @endif
+                                                @if($assignment->notes)
+                                                <p class="text-xs text-gray-500 mt-1 italic">Note: {{ $assignment->notes }}</p>
+                                                @endif
                                             </div>
                                             <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $assignment->status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
                                                 {{ ucfirst(str_replace('_', ' ', $assignment->status)) }}
@@ -54,6 +60,11 @@
                                     <p class="text-sm text-blue-900">
                                         <strong>Progress:</strong> {{ $onboardingRequest->taskAssignments->where('status', 'completed')->count() }} of {{ $onboardingRequest->taskAssignments->count() }} tasks completed
                                     </p>
+                                    @if($onboardingRequest->taskAssignments->where('status', 'completed')->count() === $onboardingRequest->taskAssignments->count())
+                                    <p class="text-sm text-green-700 font-semibold mt-2">
+                                        ✓ Congratulations! All onboarding tasks are complete. Welcome to the team!
+                                    </p>
+                                    @endif
                                 </div>
                             @endif
                         </div>
@@ -75,7 +86,18 @@
                         <div class="ml-4 flex-1">
                             <h3 class="text-xl font-bold mb-2 text-orange-900">Your Exit Clearance Status</h3>
                             <p class="text-gray-700 mb-2">Request #{{ $exitClearanceRequest->id }} - Status: <span class="font-semibold">{{ ucfirst(str_replace('_', ' ', $exitClearanceRequest->status)) }}</span></p>
-                            <p class="text-sm text-gray-600 mb-4">Exit Date: {{ $exitClearanceRequest->exit_date->format('M d, Y') }}</p>
+                            <p class="text-sm text-gray-600 mb-2">Exit Date: {{ $exitClearanceRequest->exit_date->format('M d, Y') }}</p>
+                            @if($exitClearanceRequest->line_manager_name)
+                            <p class="text-sm text-gray-600 mb-2">Line Manager: {{ $exitClearanceRequest->line_manager_name }}</p>
+                            @endif
+                            @if($exitClearanceRequest->line_manager_approval_status)
+                            <p class="text-sm mb-4">
+                                Line Manager Approval: 
+                                <span class="font-semibold {{ $exitClearanceRequest->line_manager_approval_status === 'approved' ? 'text-green-600' : ($exitClearanceRequest->line_manager_approval_status === 'rejected' ? 'text-red-600' : 'text-yellow-600') }}">
+                                    {{ ucfirst($exitClearanceRequest->line_manager_approval_status) }}
+                                </span>
+                            </p>
+                            @endif
                             
                             @if($exitClearanceRequest->taskAssignments->count() > 0)
                             <div class="mt-4">
@@ -84,9 +106,18 @@
                                     @foreach($exitClearanceRequest->taskAssignments as $assignment)
                                     <div class="bg-white rounded-lg p-3 border border-orange-200">
                                         <div class="flex items-center justify-between">
-                                            <div>
+                                            <div class="flex-1">
                                                 <span class="font-medium text-gray-900">{{ $assignment->task->name }}</span>
-                                                <p class="text-sm text-gray-600">{{ $assignment->task->department->name }} - {{ $assignment->task->description }}</p>
+                                                <p class="text-sm text-gray-600">{{ $assignment->task->department->name }}</p>
+                                                @if($assignment->task->description)
+                                                <p class="text-xs text-gray-500 mt-1">{{ $assignment->task->description }}</p>
+                                                @endif
+                                                @if($assignment->notes)
+                                                <p class="text-xs text-gray-500 mt-1 italic">Note: {{ $assignment->notes }}</p>
+                                                @endif
+                                                @if($assignment->completed_date)
+                                                <p class="text-xs text-gray-400 mt-1">Completed: {{ $assignment->completed_date->format('M d, Y h:i A') }}</p>
+                                                @endif
                                             </div>
                                             <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $assignment->status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
                                                 {{ ucfirst(str_replace('_', ' ', $assignment->status)) }}
@@ -194,7 +225,12 @@
             @if($acceptedAssets->count() > 0)
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
-                    <h3 class="text-xl font-bold mb-4 text-gray-900">Your Current Assets</h3>
+                    <h3 class="text-xl font-bold mb-4 text-gray-900 flex items-center">
+                        <svg class="h-6 w-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Your Current Assets
+                    </h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -205,17 +241,25 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned Date</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Accepted Date</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($acceptedAssets as $asset)
-                                <tr>
+                                <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap font-medium">{{ $asset->asset_name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $asset->asset_type }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $asset->serial_number ?? 'N/A' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-mono text-sm">{{ $asset->serial_number ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $asset->assigned_date->format('M d, Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $asset->acceptance_date->format('M d, Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $asset->department->name }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">
+                                        @if($asset->description)
+                                            {{ Str::limit($asset->description, 50) }}
+                                        @else
+                                            <span class="text-gray-400">—</span>
+                                        @endif
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
