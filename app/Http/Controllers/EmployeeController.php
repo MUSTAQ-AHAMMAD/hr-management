@@ -222,22 +222,28 @@ class EmployeeController extends Controller
         // Get HR department ID
         $hrDepartment = Department::where('type', 'HR')->first();
         
-        if (!$hrDepartment) {
+        // Build the query to get HR users and admins
+        $hrUsersQuery = User::query();
+        
+        // If HR department exists, include HR department users
+        if ($hrDepartment) {
+            $hrUsersQuery->where('department_id', $hrDepartment->id);
+        } else {
             Log::warning('HR department not found when trying to notify about email creation', [
                 'employee_id' => $employee->id,
                 'employee_code' => $employee->employee_code,
             ]);
+            // Start with impossible condition so we can add Admin/Super Admin users
+            $hrUsersQuery->whereRaw('1 = 0');
         }
         
-        // Get all users in HR department OR users with Admin/Super Admin roles
-        $hrUsers = User::where(function($query) use ($hrDepartment) {
-            if ($hrDepartment) {
-                $query->where('department_id', $hrDepartment->id);
-            }
-            $query->orWhereHas('roles', function($roleQuery) {
-                $roleQuery->whereIn('name', ['Admin', 'Super Admin']);
-            });
+        // Also include all Admin and Super Admin users regardless of department
+        $adminUsers = User::whereHas('roles', function($roleQuery) {
+            $roleQuery->whereIn('name', ['Admin', 'Super Admin']);
         })->get();
+        
+        // Merge HR users and admin users
+        $hrUsers = $hrUsersQuery->get()->merge($adminUsers)->unique('id');
         
         if ($hrUsers->isEmpty()) {
             Log::warning('No HR users or admins found to notify about email creation', [

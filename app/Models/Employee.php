@@ -69,6 +69,7 @@ class Employee extends Model
      */
     public function isPendingEmailCreation(): bool
     {
-        return empty($this->email) && !$this->email_created_by_it;
+        // Pending if email is empty and hasn't been marked as created by IT
+        return empty($this->email);
     }
 }
