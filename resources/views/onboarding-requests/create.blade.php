@@ -350,9 +350,11 @@
                 
                 // Show/hide create login section based on whether employee has login
                 const hasLogin = selectedOption.getAttribute('data-has-login');
-                if (hasLogin === 'No') {
+                const employeeEmail = selectedOption.getAttribute('data-email');
+                
+                if (hasLogin === 'No' && employeeEmail && employeeEmail !== 'N/A') {
                     createLoginSection.style.display = 'block';
-                    document.getElementById('login-email').textContent = selectedOption.getAttribute('data-email');
+                    document.getElementById('login-email').textContent = employeeEmail;
                 } else {
                     createLoginSection.style.display = 'none';
                     createLoginCheckbox.checked = false;
