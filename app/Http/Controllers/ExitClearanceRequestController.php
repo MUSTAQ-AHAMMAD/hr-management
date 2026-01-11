@@ -60,6 +60,8 @@ class ExitClearanceRequestController extends Controller
     {
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
+            'line_manager_id' => 'required|exists:users,id',
+            'line_manager_email' => 'required|email',
             'exit_date' => 'required|date',
             'reason' => 'nullable|string',
             'department_ids' => 'nullable|array',
@@ -68,16 +70,34 @@ class ExitClearanceRequestController extends Controller
 
         $validated['initiated_by'] = Auth::id();
         $validated['status'] = 'pending';
+        $validated['line_manager_approval_status'] = 'pending';
 
-        $exitRequest = ExitClearanceRequest::create($validated);
+        \DB::beginTransaction();
 
-        // Auto-assign tasks if departments are selected
-        if (isset($validated['department_ids']) && count($validated['department_ids']) > 0) {
-            $this->autoAssignTasksForDepartments($exitRequest, $validated['department_ids']);
+        try {
+            $exitRequest = ExitClearanceRequest::create($validated);
+
+            // Send email to line manager for approval
+            $approvalToken = \Str::random(64);
+            \Cache::put('exit_approval_' . $exitRequest->id, $approvalToken, now()->addDays(7));
+            
+            try {
+                \Mail::to($validated['line_manager_email'])->queue(
+                    new \App\Mail\LineManagerApprovalRequest($exitRequest, $approvalToken)
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to send line manager approval email: ' . $e->getMessage());
+            }
+
+            \DB::commit();
+
+            return redirect()->route('exit-clearance-requests.show', $exitRequest)
+                ->with('success', 'Exit clearance request created successfully. Line manager approval email has been sent.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return back()->with('error', 'Failed to create exit clearance request: ' . $e->getMessage())
+                ->withInput();
         }
-
-        return redirect()->route('exit-clearance-requests.show', $exitRequest)
-            ->with('success', 'Exit clearance request created successfully.');
     }
 
     /**
@@ -147,10 +167,67 @@ class ExitClearanceRequestController extends Controller
     }
 
     /**
+     * Line manager approves the exit clearance request.
+     */
+    public function lineManagerApprove(Request $request, ExitClearanceRequest $exitClearanceRequest)
+    {
+        $token = $request->query('token');
+        $cachedToken = \Cache::get('exit_approval_' . $exitClearanceRequest->id);
+
+        if (!$token || $token !== $cachedToken) {
+            return redirect()->route('exit-clearance-requests.show', $exitClearanceRequest)
+                ->with('error', 'Invalid or expired approval link.');
+        }
+
+        $exitClearanceRequest->update([
+            'line_manager_approval_status' => 'approved',
+            'line_manager_approved_at' => now(),
+            'line_manager_approval_notes' => $request->input('notes', 'Approved via email link'),
+        ]);
+
+        \Cache::forget('exit_approval_' . $exitClearanceRequest->id);
+
+        return redirect()->route('exit-clearance-requests.show', $exitClearanceRequest)
+            ->with('success', 'Exit clearance request approved. HR can now assign departments for clearance.');
+    }
+
+    /**
+     * Line manager rejects the exit clearance request.
+     */
+    public function lineManagerReject(Request $request, ExitClearanceRequest $exitClearanceRequest)
+    {
+        $token = $request->query('token');
+        $cachedToken = \Cache::get('exit_approval_' . $exitClearanceRequest->id);
+
+        if (!$token || $token !== $cachedToken) {
+            return redirect()->route('exit-clearance-requests.show', $exitClearanceRequest)
+                ->with('error', 'Invalid or expired approval link.');
+        }
+
+        $exitClearanceRequest->update([
+            'line_manager_approval_status' => 'rejected',
+            'line_manager_approved_at' => now(),
+            'line_manager_approval_notes' => $request->input('notes', 'Rejected via email link'),
+            'status' => 'rejected',
+        ]);
+
+        \Cache::forget('exit_approval_' . $exitClearanceRequest->id);
+
+        return redirect()->route('exit-clearance-requests.show', $exitClearanceRequest)
+            ->with('success', 'Exit clearance request has been rejected.');
+    }
+
+    /**
      * Assign tasks to the exit clearance request.
      */
     public function assignTasks(Request $request, ExitClearanceRequest $exitClearanceRequest)
     {
+        // Check if line manager has approved
+        if ($exitClearanceRequest->line_manager_approval_status !== 'approved') {
+            return redirect()->route('exit-clearance-requests.show', $exitClearanceRequest)
+                ->with('error', 'Cannot assign tasks until line manager approves the exit clearance request.');
+        }
+
         $validated = $request->validate([
             'task_ids' => 'required|array',
             'task_ids.*' => 'exists:tasks,id',

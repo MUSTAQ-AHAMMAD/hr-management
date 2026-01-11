@@ -10,6 +10,9 @@ class OnboardingRequest extends Model
 {
     protected $fillable = [
         'employee_id',
+        'personal_email',
+        'line_manager_id',
+        'line_manager_email',
         'initiated_by',
         'status',
         'notes',
@@ -30,6 +33,11 @@ class OnboardingRequest extends Model
     public function initiatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'initiated_by');
+    }
+
+    public function lineManager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'line_manager_id');
     }
 
     public function taskAssignments(): MorphMany

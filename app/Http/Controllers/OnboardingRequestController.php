@@ -82,6 +82,9 @@ class OnboardingRequestController extends Controller
     {
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
+            'personal_email' => 'nullable|email',
+            'line_manager_id' => 'nullable|exists:users,id',
+            'line_manager_email' => 'nullable|email',
             'expected_completion_date' => 'required|date|after:today',
             'notes' => 'nullable|string',
             'status' => 'nullable|in:pending,in_progress',
@@ -162,6 +165,27 @@ class OnboardingRequestController extends Controller
             }
 
             \DB::commit();
+
+            // Send email notifications
+            $employee = $onboardingRequest->employee;
+            
+            // Send to personal email if provided
+            if ($onboardingRequest->personal_email) {
+                try {
+                    \Mail::to($onboardingRequest->personal_email)->queue(new \App\Mail\OnboardingCreated($onboardingRequest));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send onboarding email to personal email: ' . $e->getMessage());
+                }
+            }
+            
+            // Send to official email if it exists
+            if ($employee->email) {
+                try {
+                    \Mail::to($employee->email)->queue(new \App\Mail\OnboardingCreated($onboardingRequest));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send onboarding email to official email: ' . $e->getMessage());
+                }
+            }
 
             $message = 'Onboarding request created successfully.';
             if ($loginCreated) {
