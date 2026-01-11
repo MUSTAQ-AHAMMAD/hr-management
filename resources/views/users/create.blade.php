@@ -22,9 +22,10 @@
 
                             <!-- Email -->
                             <div>
-                                <x-input-label for="email" :value="__('Email')" />
-                                <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email')" required />
+                                <x-input-label for="email" :value="__('Email (Optional)')" />
+                                <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email')" />
                                 <x-input-error class="mt-2" :messages="$errors->get('email')" />
+                                <p class="mt-1 text-sm text-gray-500">Leave empty if email ID is not yet created. IT team will be notified.</p>
                             </div>
 
                             <!-- Password -->

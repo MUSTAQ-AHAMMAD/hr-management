@@ -24,8 +24,11 @@
                             <!-- Email -->
                             <div>
                                 <x-input-label for="email" :value="__('Email')" />
-                                <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required />
+                                <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" />
                                 <x-input-error class="mt-2" :messages="$errors->get('email')" />
+                                @if(empty($user->email))
+                                <p class="mt-1 text-sm text-blue-600 font-semibold">⚠️ Email not set. Add email to notify HR team.</p>
+                                @endif
                             </div>
 
                             <!-- Password (Optional for edit) -->
