@@ -5,6 +5,11 @@
                 {{ __('Exit Clearance Request #') }}{{ $exitClearanceRequest->id }}
             </span></h2>
             <div class="flex space-x-3">
+                @can('edit exit clearance')
+                <a href="{{ route('exit-clearance-requests.edit', $exitClearanceRequest) }}" class="inline-flex items-center px-4 py-2 bg-cobalt-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-cobalt-700 focus:outline-none focus:ring-2 focus:ring-cobalt-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    Edit Request
+                </a>
+                @endcan
                 @if($exitClearanceRequest->status === 'cleared' || $exitClearanceRequest->taskAssignments->whereIn('status', ['pending', 'in_progress'])->count() === 0)
                     <form action="{{ route('exit-clearance-requests.generate-pdf', $exitClearanceRequest) }}" method="POST">
                         @csrf
