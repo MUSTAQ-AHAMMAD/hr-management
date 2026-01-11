@@ -222,30 +222,26 @@ class EmployeeController extends Controller
         // Get HR department ID
         $hrDepartment = Department::where('type', 'HR')->first();
         
-        // Build the query to get HR users and admins
-        $hrUsersQuery = User::query();
-        
-        // If HR department exists, include HR department users
+        // Get HR department users
         if ($hrDepartment) {
-            $hrUsersQuery->where('department_id', $hrDepartment->id);
+            $hrUsers = User::where('department_id', $hrDepartment->id)->get();
         } else {
             Log::warning('HR department not found when trying to notify about email creation', [
                 'employee_id' => $employee->id,
                 'employee_code' => $employee->employee_code,
             ]);
-            // Start with impossible condition so we can add Admin/Super Admin users
-            $hrUsersQuery->whereRaw('1 = 0');
+            $hrUsers = collect(); // Start with empty collection
         }
         
-        // Also include all Admin and Super Admin users regardless of department
+        // Also get all Admin and Super Admin users regardless of department
         $adminUsers = User::whereHas('roles', function($roleQuery) {
             $roleQuery->whereIn('name', ['Admin', 'Super Admin']);
         })->get();
         
-        // Merge HR users and admin users
-        $hrUsers = $hrUsersQuery->get()->merge($adminUsers)->unique('id');
+        // Merge HR users and admin users, removing duplicates
+        $allRecipients = $hrUsers->merge($adminUsers)->unique('id');
         
-        if ($hrUsers->isEmpty()) {
+        if ($allRecipients->isEmpty()) {
             Log::warning('No HR users or admins found to notify about email creation', [
                 'employee_id' => $employee->id,
                 'employee_code' => $employee->employee_code,
@@ -253,10 +249,10 @@ class EmployeeController extends Controller
             return;
         }
         
-        foreach ($hrUsers as $hrUser) {
+        foreach ($allRecipients as $recipient) {
             // Create in-app notification
             Notification::create([
-                'user_id' => $hrUser->id,
+                'user_id' => $recipient->id,
                 'title' => 'Employee Email ID Created',
                 'message' => "Email ID ({$employee->email}) has been created for employee {$employee->full_name} (Code: {$employee->employee_code}). The employee is now ready for onboarding.",
                 'type' => 'email_created',
@@ -267,12 +263,12 @@ class EmployeeController extends Controller
             
             // Send email notification
             try {
-                Mail::to($hrUser->email)->queue(new EmployeeEmailUpdated($employee));
+                Mail::to($recipient->email)->queue(new EmployeeEmailUpdated($employee));
             } catch (\Exception $e) {
                 // Log the error but don't fail the request
                 Log::error('Failed to send email notification to HR', [
                     'error' => $e->getMessage(),
-                    'hr_user_id' => $hrUser->id,
+                    'recipient_user_id' => $recipient->id,
                     'employee_id' => $employee->id,
                 ]);
             }
