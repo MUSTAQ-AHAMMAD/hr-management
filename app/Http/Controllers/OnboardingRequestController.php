@@ -89,6 +89,7 @@ class OnboardingRequestController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'personal_email' => 'nullable|email',
             'line_manager_id' => 'nullable|exists:users,id',
+            'line_manager_name' => 'nullable|string|max:255',
             'line_manager_email' => 'nullable|email',
             'expected_completion_date' => 'required|date|after:today',
             'notes' => 'nullable|string',
@@ -99,15 +100,6 @@ class OnboardingRequestController extends Controller
             'task_ids.*' => 'exists:tasks,id',
             'create_login' => 'nullable|boolean',
         ]);
-
-        // Validate that line manager email matches the selected line manager's email
-        if ($validated['line_manager_id'] && $validated['line_manager_email']) {
-            $lineManager = User::find($validated['line_manager_id']);
-            if ($lineManager && $lineManager->email !== $validated['line_manager_email']) {
-                return back()->with('error', 'Line manager email does not match the selected line manager.')
-                    ->withInput();
-            }
-        }
 
         $validated['initiated_by'] = Auth::id();
         $validated['status'] = $validated['status'] ?? 'pending';
@@ -251,6 +243,8 @@ class OnboardingRequestController extends Controller
     public function update(Request $request, OnboardingRequest $onboardingRequest)
     {
         $validated = $request->validate([
+            'line_manager_name' => 'nullable|string|max:255',
+            'line_manager_email' => 'nullable|email',
             'expected_completion_date' => 'required|date',
             'notes' => 'nullable|string',
             'status' => 'required|in:pending,in_progress,completed,cancelled',

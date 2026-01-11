@@ -65,20 +65,14 @@ class ExitClearanceRequestController extends Controller
     {
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
-            'line_manager_id' => 'required|exists:users,id',
+            'line_manager_id' => 'nullable|exists:users,id',
+            'line_manager_name' => 'required|string|max:255',
             'line_manager_email' => 'required|email',
             'exit_date' => 'required|date',
             'reason' => 'nullable|string',
             'department_ids' => 'nullable|array',
             'department_ids.*' => 'exists:departments,id',
         ]);
-
-        // Validate that line manager email matches the selected line manager's email
-        $lineManager = User::find($validated['line_manager_id']);
-        if ($lineManager && $lineManager->email !== $validated['line_manager_email']) {
-            return back()->with('error', 'Line manager email does not match the selected line manager.')
-                ->withInput();
-        }
 
         $validated['initiated_by'] = Auth::id();
         $validated['status'] = 'pending';
@@ -151,6 +145,8 @@ class ExitClearanceRequestController extends Controller
     public function update(Request $request, ExitClearanceRequest $exitClearanceRequest)
     {
         $validated = $request->validate([
+            'line_manager_name' => 'required|string|max:255',
+            'line_manager_email' => 'required|email',
             'exit_date' => 'required|date',
             'reason' => 'nullable|string',
             'status' => 'required|in:pending,in_progress,cleared,rejected',

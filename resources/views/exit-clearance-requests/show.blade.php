@@ -88,7 +88,9 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <p class="text-sm text-gray-500">Line Manager</p>
-                            <p class="text-base font-medium text-gray-900">{{ $exitClearanceRequest->lineManager->name ?? 'N/A' }}</p>
+                            <p class="text-base font-medium text-gray-900">
+                                {{ $exitClearanceRequest->line_manager_name ?? $exitClearanceRequest->lineManager->name ?? 'N/A' }}
+                            </p>
                             @if($exitClearanceRequest->line_manager_email)
                                 <p class="text-sm text-gray-500">{{ $exitClearanceRequest->line_manager_email }}</p>
                             @endif

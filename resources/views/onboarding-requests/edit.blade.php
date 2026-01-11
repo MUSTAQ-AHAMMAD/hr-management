@@ -14,6 +14,20 @@
                         @method('PUT')
                         
                         <div class="grid grid-cols-1 gap-6">
+                            <!-- Line Manager Name -->
+                            <div>
+                                <x-input-label for="line_manager_name" :value="__('Line Manager Name (Optional)')" />
+                                <x-text-input id="line_manager_name" name="line_manager_name" type="text" class="mt-1 block w-full" :value="old('line_manager_name', $onboardingRequest->line_manager_name)" placeholder="Enter line manager's full name" />
+                                <x-input-error class="mt-2" :messages="$errors->get('line_manager_name')" />
+                            </div>
+
+                            <!-- Line Manager Email -->
+                            <div>
+                                <x-input-label for="line_manager_email" :value="__('Line Manager Email (Optional)')" />
+                                <x-text-input id="line_manager_email" name="line_manager_email" type="email" class="mt-1 block w-full" :value="old('line_manager_email', $onboardingRequest->line_manager_email)" placeholder="manager@company.com" />
+                                <x-input-error class="mt-2" :messages="$errors->get('line_manager_email')" />
+                            </div>
+
                             <!-- Expected Completion Date -->
                             <div>
                                 <x-input-label for="expected_completion_date" :value="__('Expected Completion Date')" />

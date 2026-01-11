@@ -13,6 +13,7 @@ class ExitClearanceRequest extends Model
         'employee_id',
         'line_manager_id',
         'line_manager_email',
+        'line_manager_name',
         'initiated_by',
         'status',
         'line_manager_approval_status',
