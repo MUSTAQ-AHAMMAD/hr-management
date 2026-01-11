@@ -79,10 +79,12 @@
                             <p class="text-base font-medium text-gray-900">{{ $onboardingRequest->personal_email }}</p>
                         </div>
                         @endif
-                        @if($onboardingRequest->line_manager_id)
+                        @if($onboardingRequest->line_manager_name || $onboardingRequest->line_manager_id)
                         <div>
                             <p class="text-sm text-gray-500">Line Manager</p>
-                            <p class="text-base font-medium text-gray-900">{{ $onboardingRequest->lineManager->name ?? 'N/A' }}</p>
+                            <p class="text-base font-medium text-gray-900">
+                                {{ $onboardingRequest->line_manager_name ?? $onboardingRequest->lineManager->name ?? 'N/A' }}
+                            </p>
                             @if($onboardingRequest->line_manager_email)
                                 <p class="text-sm text-gray-500">{{ $onboardingRequest->line_manager_email }}</p>
                             @endif

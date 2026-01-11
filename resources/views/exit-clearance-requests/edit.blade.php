@@ -14,6 +14,20 @@
                         @method('PUT')
                         
                         <div class="grid grid-cols-1 gap-6">
+                            <!-- Line Manager Name -->
+                            <div>
+                                <x-input-label for="line_manager_name" :value="__('Line Manager Name')" />
+                                <x-text-input id="line_manager_name" name="line_manager_name" type="text" class="mt-1 block w-full" :value="old('line_manager_name', $exitClearanceRequest->line_manager_name)" placeholder="Enter line manager's full name" required />
+                                <x-input-error class="mt-2" :messages="$errors->get('line_manager_name')" />
+                            </div>
+
+                            <!-- Line Manager Email -->
+                            <div>
+                                <x-input-label for="line_manager_email" :value="__('Line Manager Email')" />
+                                <x-text-input id="line_manager_email" name="line_manager_email" type="email" class="mt-1 block w-full" :value="old('line_manager_email', $exitClearanceRequest->line_manager_email)" placeholder="manager@company.com" required />
+                                <x-input-error class="mt-2" :messages="$errors->get('line_manager_email')" />
+                            </div>
+
                             <div>
                                 <x-input-label for="exit_date" :value="__('Exit Date')" />
                                 <x-text-input id="exit_date" name="exit_date" type="date" class="mt-1 block w-full" :value="old('exit_date', $exitClearanceRequest->exit_date?->format('Y-m-d'))" required />

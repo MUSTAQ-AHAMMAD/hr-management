@@ -107,26 +107,19 @@
                                 <x-input-error class="mt-2" :messages="$errors->get('personal_email')" />
                             </div>
 
-                            <!-- Line Manager -->
+                            <!-- Line Manager Name -->
                             <div class="md:col-span-2">
-                                <x-input-label for="line_manager_id" :value="__('Line Manager (Optional)')" />
+                                <x-input-label for="line_manager_name" :value="__('Line Manager Name (Optional)')" />
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                     </div>
-                                    <select id="line_manager_id" name="line_manager_id" class="mt-1 block w-full pl-10 border-gray-300 focus:border-cobalt-500 focus:ring-cobalt-500 rounded-md shadow-sm" onchange="updateLineManagerEmail()">
-                                        <option value="">Select Line Manager</option>
-                                        @foreach($managers as $manager)
-                                            <option value="{{ $manager->id }}" data-email="{{ $manager->email }}" {{ old('line_manager_id') == $manager->id ? 'selected' : '' }}>
-                                                {{ $manager->name }} ({{ $manager->department->name ?? 'No Dept' }})
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <x-text-input id="line_manager_name" name="line_manager_name" type="text" class="mt-1 block w-full pl-10" :value="old('line_manager_name')" placeholder="Enter line manager's full name" />
                                 </div>
-                                <p class="mt-1 text-xs text-gray-500">Select the employee's line manager</p>
-                                <x-input-error class="mt-2" :messages="$errors->get('line_manager_id')" />
+                                <p class="mt-1 text-xs text-gray-500">Enter the full name of the employee's line manager</p>
+                                <x-input-error class="mt-2" :messages="$errors->get('line_manager_name')" />
                             </div>
 
                             <!-- Line Manager Email -->
@@ -138,9 +131,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                         </svg>
                                     </div>
-                                    <x-text-input id="line_manager_email" name="line_manager_email" type="email" class="mt-1 block w-full pl-10" :value="old('line_manager_email')" placeholder="manager@company.com" readonly />
+                                    <x-text-input id="line_manager_email" name="line_manager_email" type="email" class="mt-1 block w-full pl-10" :value="old('line_manager_email')" placeholder="manager@company.com" />
                                 </div>
-                                <p class="mt-1 text-xs text-gray-500">Auto-filled from selected line manager or enter manually</p>
+                                <p class="mt-1 text-xs text-gray-500">Enter the line manager's email address</p>
                                 <x-input-error class="mt-2" :messages="$errors->get('line_manager_email')" />
                             </div>
 
@@ -363,18 +356,6 @@
                 // Hide the details section if no employee is selected
                 detailsDiv.classList.add('hidden');
                 createLoginSection.style.display = 'none';
-            }
-        }
-
-        function updateLineManagerEmail() {
-            const select = document.getElementById('line_manager_id');
-            const selectedOption = select.options[select.selectedIndex];
-            const emailInput = document.getElementById('line_manager_email');
-            
-            if (selectedOption.value) {
-                emailInput.value = selectedOption.getAttribute('data-email') || '';
-            } else {
-                emailInput.value = '';
             }
         }
 

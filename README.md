@@ -12,6 +12,8 @@ A comprehensive Laravel-based HR Management System for managing employee onboard
 ### 2. **Employee Onboarding Requests**
 - Department-specific task assignments
 - Workflow tracking and status updates
+- Flexible line manager assignment (text-based, not restricted to system users)
+- Line manager information can be edited at any time
 - Tasks include:
   - IT: Laptop provision, SIM card, email account setup
   - Admin: Employee ID creation, workspace assignment
@@ -19,6 +21,9 @@ A comprehensive Laravel-based HR Management System for managing employee onboard
 
 ### 3. **Employee Exit Clearance**
 - Multi-department clearance validation
+- Line manager approval workflow with email notifications
+- Flexible line manager assignment (text-based)
+- Line manager information editable by HR
 - Asset return tracking
 - Financial dues clearance
 - PDF-based clearance report generation
@@ -276,6 +281,20 @@ This project is open-sourced software licensed under the [MIT license](https://o
 For issues, questions, or suggestions, please open an issue on GitHub or contact the development team.
 
 ## Changelog
+
+### Version 1.0.3 (January 2026)
+- **Line Manager Feature Enhancement**
+  - Changed line manager input from dropdown to text fields (name and email)
+  - Enabled editing of line manager information for both onboarding and exit clearance requests
+  - Benefits:
+    - Line managers don't need to be system users
+    - HR can update line manager information at any time
+    - More flexible for organizational changes
+    - Better performance by removing unnecessary database queries
+  - Added comprehensive documentation:
+    - `LINE_MANAGER_FEATURE_DOCUMENTATION.md` - Full technical documentation
+    - `VISUAL_GUIDE_LINE_MANAGER.md` - Visual guide with mockups
+    - `QUICK_REFERENCE_LINE_MANAGER.md` - Quick reference for daily use
 
 ### Version 1.0.2 (January 2026)
 - **Enhanced Asset Management**
