@@ -49,8 +49,13 @@ class ExitClearanceRequestController extends Controller
     {
         $employees = Employee::whereIn('status', ['active', 'inactive'])->get();
         $departments = Department::where('is_active', true)->get();
+        
+        // Get potential line managers (users with management roles)
+        $managers = User::whereHas('roles', function($q) {
+            $q->whereIn('name', ['Admin', 'Super Admin', 'Department User']);
+        })->orderBy('name')->get();
 
-        return view('exit-clearance-requests.create', compact('employees', 'departments'));
+        return view('exit-clearance-requests.create', compact('employees', 'departments', 'managers'));
     }
 
     /**
@@ -68,6 +73,13 @@ class ExitClearanceRequestController extends Controller
             'department_ids.*' => 'exists:departments,id',
         ]);
 
+        // Validate that line manager email matches the selected line manager's email
+        $lineManager = User::find($validated['line_manager_id']);
+        if ($lineManager && $lineManager->email !== $validated['line_manager_email']) {
+            return back()->with('error', 'Line manager email does not match the selected line manager.')
+                ->withInput();
+        }
+
         $validated['initiated_by'] = Auth::id();
         $validated['status'] = 'pending';
         $validated['line_manager_approval_status'] = 'pending';
@@ -78,7 +90,7 @@ class ExitClearanceRequestController extends Controller
             $exitRequest = ExitClearanceRequest::create($validated);
 
             // Send email to line manager for approval
-            $approvalToken = \Str::random(64);
+            $approvalToken = hash('sha256', \Str::random(64) . $exitRequest->id . now()->timestamp);
             \Cache::put('exit_approval_' . $exitRequest->id, $approvalToken, now()->addDays(7));
             
             try {
@@ -86,7 +98,7 @@ class ExitClearanceRequestController extends Controller
                     new \App\Mail\LineManagerApprovalRequest($exitRequest, $approvalToken)
                 );
             } catch (\Exception $e) {
-                \Log::error('Failed to send line manager approval email: ' . $e->getMessage());
+                \Log::error('Failed to send line manager approval email for exit request #' . $exitRequest->id . ': ' . $e->getMessage());
             }
 
             \DB::commit();
@@ -95,7 +107,7 @@ class ExitClearanceRequestController extends Controller
                 ->with('success', 'Exit clearance request created successfully. Line manager approval email has been sent.');
         } catch (\Exception $e) {
             \DB::rollBack();
-            return back()->with('error', 'Failed to create exit clearance request: ' . $e->getMessage())
+            return back()->with('error', 'Failed to create exit clearance request for employee #' . $validated['employee_id'] . ': ' . $e->getMessage())
                 ->withInput();
         }
     }

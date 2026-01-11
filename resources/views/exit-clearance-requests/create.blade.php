@@ -71,11 +71,6 @@
                                     </div>
                                     <select id="line_manager_id" name="line_manager_id" class="mt-1 block w-full pl-10 border-gray-300 focus:border-cobalt-500 focus:ring-cobalt-500 rounded-md shadow-sm" required onchange="updateLineManagerEmail()">
                                         <option value="">Select Line Manager</option>
-                                        @php
-                                            $managers = \App\Models\User::whereHas('roles', function($q) {
-                                                $q->whereIn('name', ['Admin', 'Super Admin', 'Department User']);
-                                            })->orderBy('name')->get();
-                                        @endphp
                                         @foreach($managers as $manager)
                                             <option value="{{ $manager->id }}" data-email="{{ $manager->email }}" {{ old('line_manager_id') == $manager->id ? 'selected' : '' }}>
                                                 {{ $manager->name }} ({{ $manager->department->name ?? 'No Dept' }})
