@@ -23,11 +23,15 @@ class Employee extends Model
         'exit_date',
         'status',
         'user_id',
+        'email_created_by_it',
+        'email_created_at',
     ];
 
     protected $casts = [
         'joining_date' => 'date',
         'exit_date' => 'date',
+        'email_created_by_it' => 'boolean',
+        'email_created_at' => 'datetime',
     ];
 
     public function department(): BelongsTo
@@ -58,5 +62,14 @@ class Employee extends Model
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    /**
+     * Check if employee is pending email creation by IT
+     */
+    public function isPendingEmailCreation(): bool
+    {
+        // Employee is pending if they don't have an email yet
+        return empty($this->email);
     }
 }

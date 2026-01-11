@@ -37,6 +37,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Employees
     Route::resource('employees', EmployeeController::class);
+    Route::get('employees/{employee}/edit-email', [EmployeeController::class, 'editEmail'])->name('employees.edit-email');
+    Route::patch('employees/{employee}/update-email', [EmployeeController::class, 'updateEmail'])->name('employees.update-email');
 
     // Users
     Route::resource('users', UserController::class);

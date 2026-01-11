@@ -19,6 +19,33 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <!-- Email Pending Alert -->
+            @if($employee->isPendingEmailCreation())
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 px-6 py-4 rounded-lg shadow-sm">
+                <div class="flex items-center">
+                    <svg class="h-6 w-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div>
+                        <h3 class="font-bold">Pending Email Creation</h3>
+                        <p class="text-sm">This employee is waiting for IT team to create an email ID. The IT team has been notified.</p>
+                    </div>
+                </div>
+            </div>
+            @elseif($employee->email_created_by_it)
+            <div class="bg-green-50 border-l-4 border-green-500 text-green-800 px-6 py-4 rounded-lg shadow-sm">
+                <div class="flex items-center">
+                    <svg class="h-6 w-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <h3 class="font-bold">Email Created by IT</h3>
+                        <p class="text-sm">Email ID was created by IT team on {{ $employee->email_created_at?->format('F d, Y \a\t h:i A') }}. Employee is ready for onboarding.</p>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <!-- Basic Information -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
@@ -34,7 +61,20 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-500">Email</p>
-                            <p class="text-base font-medium text-gray-900">{{ $employee->email }}</p>
+                            <p class="text-base font-medium text-gray-900">
+                                @if($employee->email)
+                                    {{ $employee->email }}
+                                    @if($employee->email_created_by_it)
+                                        <span class="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" title="Created by IT on {{ $employee->email_created_at?->format('F d, Y') }}">
+                                            IT Created
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        Pending IT Creation
+                                    </span>
+                                @endif
+                            </p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500">Phone</p>

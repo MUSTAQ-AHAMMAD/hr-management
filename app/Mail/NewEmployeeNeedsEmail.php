@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -16,7 +16,7 @@ class NewEmployeeNeedsEmail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public User $user)
+    public function __construct(public Employee $employee)
     {
         //
     }
@@ -27,7 +27,7 @@ class NewEmployeeNeedsEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Employee Needs Email ID - ' . $this->user->name,
+            subject: 'New Employee Needs Email ID - ' . $this->employee->full_name,
         );
     }
 

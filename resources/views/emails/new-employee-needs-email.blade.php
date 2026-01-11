@@ -57,19 +57,27 @@
         <p>A new employee has been added to the system and requires an email ID to be created.</p>
         
         <div class="info-row">
-            <span class="label">Employee Name:</span> {{ $user->name }}
+            <span class="label">Employee Code:</span> {{ $employee->employee_code }}
         </div>
         
         <div class="info-row">
-            <span class="label">Department:</span> {{ $user->department ? $user->department->name : 'Not Assigned' }}
+            <span class="label">Employee Name:</span> {{ $employee->full_name }}
         </div>
         
         <div class="info-row">
-            <span class="label">Phone:</span> {{ $user->phone ?? 'Not Provided' }}
+            <span class="label">Department:</span> {{ $employee->department ? $employee->department->name : 'Not Assigned' }}
         </div>
         
         <div class="info-row">
-            <span class="label">Status:</span> {{ ucfirst($user->status) }}
+            <span class="label">Designation:</span> {{ $employee->designation }}
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Phone:</span> {{ $employee->phone ?? 'Not Provided' }}
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Status:</span> {{ ucfirst($employee->status) }}
         </div>
         
         <p style="margin-top: 20px;">

@@ -67,15 +67,19 @@
         <p>The email ID for the following employee has been successfully updated by the IT team.</p>
         
         <div class="info-row">
-            <span class="label">Employee Name:</span> {{ $user->name }}
+            <span class="label">Employee Code:</span> {{ $employee->employee_code }}
         </div>
         
         <div class="info-row">
-            <span class="label">Department:</span> {{ $user->department ? $user->department->name : 'Not Assigned' }}
+            <span class="label">Employee Name:</span> {{ $employee->full_name }}
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Department:</span> {{ $employee->department ? $employee->department->name : 'Not Assigned' }}
         </div>
         
         <div class="email-box">
-            Email ID: {{ $user->email }}
+            Email ID: {{ $employee->email }}
         </div>
         
         <p style="margin-top: 20px;">
