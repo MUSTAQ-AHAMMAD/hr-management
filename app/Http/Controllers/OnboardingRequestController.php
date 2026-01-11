@@ -72,12 +72,7 @@ class OnboardingRequestController extends Controller
             ->orderBy('priority')
             ->get();
 
-        // Get potential line managers (users with management roles)
-        $managers = User::whereHas('roles', function($q) {
-            $q->whereIn('name', ['Admin', 'Super Admin', 'Department User']);
-        })->orderBy('name')->get();
-
-        return view('onboarding-requests.create', compact('employees', 'customFields', 'departments', 'onboardingTasks', 'managers'));
+        return view('onboarding-requests.create', compact('employees', 'customFields', 'departments', 'onboardingTasks'));
     }
 
     /**
@@ -88,7 +83,6 @@ class OnboardingRequestController extends Controller
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'personal_email' => 'nullable|email',
-            'line_manager_id' => 'nullable|exists:users,id',
             'line_manager_name' => 'nullable|string|max:255',
             'line_manager_email' => 'nullable|email',
             'expected_completion_date' => 'required|date|after:today',

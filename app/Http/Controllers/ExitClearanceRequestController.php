@@ -49,13 +49,8 @@ class ExitClearanceRequestController extends Controller
     {
         $employees = Employee::whereIn('status', ['active', 'inactive'])->get();
         $departments = Department::where('is_active', true)->get();
-        
-        // Get potential line managers (users with management roles)
-        $managers = User::whereHas('roles', function($q) {
-            $q->whereIn('name', ['Admin', 'Super Admin', 'Department User']);
-        })->orderBy('name')->get();
 
-        return view('exit-clearance-requests.create', compact('employees', 'departments', 'managers'));
+        return view('exit-clearance-requests.create', compact('employees', 'departments'));
     }
 
     /**
@@ -65,7 +60,6 @@ class ExitClearanceRequestController extends Controller
     {
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
-            'line_manager_id' => 'nullable|exists:users,id',
             'line_manager_name' => 'required|string|max:255',
             'line_manager_email' => 'required|email',
             'exit_date' => 'required|date',
