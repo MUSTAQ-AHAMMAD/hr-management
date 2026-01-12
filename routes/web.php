@@ -19,6 +19,10 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Line manager approval routes (accessible via token without authentication)
+Route::match(['get', 'post'], 'exit-clearance-requests/{exitClearanceRequest}/line-manager-approve', [ExitClearanceRequestController::class, 'lineManagerApprove'])->name('exit-clearance-requests.line-manager-approve');
+Route::match(['get', 'post'], 'exit-clearance-requests/{exitClearanceRequest}/line-manager-reject', [ExitClearanceRequestController::class, 'lineManagerReject'])->name('exit-clearance-requests.line-manager-reject');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -53,8 +57,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Exit Clearance Requests
     Route::resource('exit-clearance-requests', ExitClearanceRequestController::class);
-    Route::match(['get', 'post'], 'exit-clearance-requests/{exitClearanceRequest}/line-manager-approve', [ExitClearanceRequestController::class, 'lineManagerApprove'])->name('exit-clearance-requests.line-manager-approve');
-    Route::match(['get', 'post'], 'exit-clearance-requests/{exitClearanceRequest}/line-manager-reject', [ExitClearanceRequestController::class, 'lineManagerReject'])->name('exit-clearance-requests.line-manager-reject');
     Route::post('exit-clearance-requests/{exitClearanceRequest}/assign-tasks', [ExitClearanceRequestController::class, 'assignTasks'])->name('exit-clearance-requests.assign-tasks');
     Route::post('exit-clearance-requests/{exitClearanceRequest}/generate-pdf', [ExitClearanceRequestController::class, 'generatePdf'])->name('exit-clearance-requests.generate-pdf');
 
