@@ -9,6 +9,7 @@ use App\Models\Asset;
 use App\Models\TaskAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 
 class ExportController extends Controller
 {
@@ -296,7 +297,7 @@ class ExportController extends Controller
                     $taskAssignment->task->department->name ?? 'N/A',
                     $taskAssignment->assignedTo->name ?? 'N/A',
                     ucfirst($taskAssignment->status),
-                    class_basename($taskAssignment->assignable_type),
+                    Str::of($taskAssignment->assignable_type)->classBasename(),
                     $taskAssignment->due_date?->format('Y-m-d') ?? 'N/A',
                     $taskAssignment->completed_at?->format('Y-m-d') ?? 'N/A',
                     $taskAssignment->is_partially_closed ? 'Yes' : 'No'

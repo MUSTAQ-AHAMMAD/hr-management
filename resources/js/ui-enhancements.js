@@ -56,14 +56,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInputs = document.querySelectorAll('input[type="search"], input[name="search"]');
     searchInputs.forEach(input => {
         let timeout;
+        let isSubmitting = false;
+        
         input.addEventListener('input', function() {
             clearTimeout(timeout);
             timeout = setTimeout(() => {
                 const form = this.closest('form');
-                if (form) {
-                    // Create and dispatch a submit event
-                    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                    form.dispatchEvent(submitEvent);
+                if (form && !isSubmitting) {
+                    // Directly submit the form instead of dispatching an event
+                    isSubmitting = true;
+                    form.submit();
                 }
             }, 500); // 500ms debounce
         });
@@ -80,14 +82,39 @@ document.addEventListener('DOMContentLoaded', function() {
     copyButtons.forEach(button => {
         button.addEventListener('click', function() {
             const textToCopy = this.getAttribute('data-copy');
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                // Show feedback
-                const originalText = this.innerHTML;
-                this.innerHTML = '<svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!';
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                }, 2000);
-            });
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    // Show feedback
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy text:', err);
+                    window.showNotification('Failed to copy to clipboard', 'error');
+                });
+            } else {
+                // Fallback for browsers without clipboard API
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text:', err);
+                    window.showNotification('Failed to copy to clipboard', 'error');
+                }
+                document.body.removeChild(textarea);
+            }
         });
     });
 

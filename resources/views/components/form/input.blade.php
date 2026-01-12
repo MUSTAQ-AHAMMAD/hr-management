@@ -1,5 +1,10 @@
 @props(['type' => 'text', 'name', 'label', 'value' => '', 'required' => false, 'disabled' => false, 'placeholder' => '', 'help' => '', 'icon' => ''])
 
+{{-- 
+    Note: The $icon parameter accepts raw HTML/SVG markup and is intentionally not escaped.
+    Only pass trusted SVG content to this parameter to prevent XSS vulnerabilities.
+--}}
+
 <div class="mb-4">
     @if($label)
         <label for="{{ $name }}" class="block text-sm font-medium text-gray-700 mb-2">
