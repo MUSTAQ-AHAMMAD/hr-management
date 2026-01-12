@@ -42,12 +42,13 @@ class OnboardingWithAssetsTest extends TestCase
         // Assert employee has no user account
         $this->assertNull($employee->user_id);
 
-        // Create onboarding request
+        // Create onboarding request with user account creation
         $this->actingAs($admin);
         $response = $this->post(route('onboarding-requests.store'), [
             'employee_id' => $employee->id,
             'expected_completion_date' => now()->addDays(7)->format('Y-m-d'),
             'notes' => 'New hire onboarding',
+            'create_login' => true, // Request user account creation
         ]);
 
         // Refresh employee
