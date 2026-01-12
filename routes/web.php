@@ -83,6 +83,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
     Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+
+    // Export functionality
+    Route::get('export/employees', [\App\Http\Controllers\ExportController::class, 'exportEmployees'])->name('export.employees');
+    Route::get('export/onboarding-requests', [\App\Http\Controllers\ExportController::class, 'exportOnboardingRequests'])->name('export.onboarding-requests');
+    Route::get('export/exit-clearance-requests', [\App\Http\Controllers\ExportController::class, 'exportExitClearanceRequests'])->name('export.exit-clearance-requests');
+    Route::get('export/assets', [\App\Http\Controllers\ExportController::class, 'exportAssets'])->name('export.assets');
+    Route::get('export/tasks', [\App\Http\Controllers\ExportController::class, 'exportTasks'])->name('export.tasks');
 });
 
 require __DIR__.'/auth.php';
