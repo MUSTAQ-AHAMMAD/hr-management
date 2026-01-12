@@ -274,17 +274,20 @@
         </div>
         @endif
         
-        @foreach($exitRequest->taskAssignments->where('status', 'completed')->groupBy('task.department_id') as $departmentId => $assignments)
-            @php
-                $firstAssignment = $assignments->first();
-                $department = $firstAssignment->task->department;
-            @endphp
+        @foreach($exitRequest->taskAssignments->where('status', 'completed')->sortBy(function($assignment) {
+            return $assignment->digital_signature_date ?? $assignment->completed_date ?? $assignment->created_at;
+        }) as $assignment)
             <div class="signature-box">
                 <div class="signature-line">
-                    <strong>{{ $department->name }} Department</strong><br>
-                    Cleared by: {{ $firstAssignment->assignedTo->name ?? 'N/A' }}<br>
-                    Date: {{ $firstAssignment->completed_date?->format('F d, Y') ?? 'N/A' }}<br>
+                    <strong>{{ $assignment->task->department->name ?? 'N/A' }} Department</strong><br>
+                    Task: {{ $assignment->task->name }}<br>
+                    Approved by: {{ $assignment->approved_by_name ?? $assignment->assignedTo->name ?? 'N/A' }}<br>
+                    Email: {{ $assignment->approved_by_email ?? $assignment->assignedTo->email ?? 'N/A' }}<br>
+                    Date: {{ $assignment->digital_signature_date ? $assignment->digital_signature_date->format('F d, Y h:i A') : ($assignment->completed_date?->format('F d, Y') ?? 'N/A') }}<br>
                     Status: <strong style="color: #10b981;">CLEARED</strong>
+                    @if($assignment->notes)
+                        <br>Notes: {{ str()->limit($assignment->notes, 100) }}
+                    @endif
                 </div>
             </div>
         @endforeach
