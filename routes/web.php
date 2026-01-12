@@ -12,6 +12,7 @@ use App\Http\Controllers\TaskAssignmentController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\ExportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -83,6 +84,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
     Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+
+    // Export functionality
+    Route::get('export/employees', [ExportController::class, 'exportEmployees'])->name('export.employees');
+    Route::get('export/onboarding-requests', [ExportController::class, 'exportOnboardingRequests'])->name('export.onboarding-requests');
+    Route::get('export/exit-clearance-requests', [ExportController::class, 'exportExitClearanceRequests'])->name('export.exit-clearance-requests');
+    Route::get('export/assets', [ExportController::class, 'exportAssets'])->name('export.assets');
+    Route::get('export/tasks', [ExportController::class, 'exportTasks'])->name('export.tasks');
 });
 
 require __DIR__.'/auth.php';

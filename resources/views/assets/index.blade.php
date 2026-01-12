@@ -5,6 +5,7 @@
                 {{ __('Asset Management') }}
             </span></h2>
             <div class="flex space-x-3">
+                <x-export-button :route="route('export.assets', request()->all())" label="Export CSV" />
                 <a href="{{ route('assets.reports') }}" class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
                     View Reports
                 </a>

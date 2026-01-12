@@ -1,4 +1,5 @@
 import './bootstrap';
+import './ui-enhancements';
 
 import Alpine from 'alpinejs';
 
