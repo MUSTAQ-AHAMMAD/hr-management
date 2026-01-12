@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-guest-approval>
     <x-slot name="header">
         <h2 class="font-bold text-2xl text-gray-900 leading-tight">
             <span class="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
@@ -199,4 +199,4 @@
 
         </div>
     </div>
-</x-app-layout>
+</x-guest-approval>
