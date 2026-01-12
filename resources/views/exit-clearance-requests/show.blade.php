@@ -218,27 +218,49 @@
                                 <h4 class="font-medium text-gray-900 mb-3">{{ $departmentName }}</h4>
                                 <div class="space-y-3">
                                     @foreach($assignments as $assignment)
-                                        <div class="flex justify-between items-start">
-                                            <div class="flex-1">
-                                                <p class="font-medium text-gray-900">{{ $assignment->task->name }}</p>
-                                                <p class="text-sm text-gray-500 mt-1">{{ $assignment->task->description }}</p>
-                                                <p class="text-xs text-gray-400 mt-1">Assigned to: {{ $assignment->assignedTo->name ?? 'N/A' }}</p>
-                                                @if($assignment->notes)
-                                                    <p class="text-sm text-gray-600 mt-2"><strong>Notes:</strong> {{ $assignment->notes }}</p>
-                                                @endif
-                                            </div>
-                                            <div class="ml-4">
-                                                @php
-                                                    $taskStatusColors = [
-                                                        'pending' => 'bg-yellow-100 text-yellow-800',
-                                                        'in_progress' => 'bg-blue-100 text-blue-800',
-                                                        'completed' => 'bg-green-100 text-green-800',
-                                                        'rejected' => 'bg-red-100 text-red-800',
-                                                    ];
-                                                @endphp
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $taskStatusColors[$assignment->status] ?? 'bg-gray-100 text-gray-800' }}">
-                                                    {{ ucfirst(str_replace('_', ' ', $assignment->status)) }}
-                                                </span>
+                                        <div class="border-b border-gray-100 pb-3 last:border-0">
+                                            <div class="flex justify-between items-start">
+                                                <div class="flex-1">
+                                                    <p class="font-medium text-gray-900">{{ $assignment->task->name }}</p>
+                                                    <p class="text-sm text-gray-500 mt-1">{{ $assignment->task->description }}</p>
+                                                    <p class="text-xs text-gray-400 mt-1">Assigned to: {{ $assignment->assignedTo->name ?? 'N/A' }}</p>
+                                                    @if($assignment->notes)
+                                                        <p class="text-sm text-gray-600 mt-2"><strong>Notes:</strong> {{ $assignment->notes }}</p>
+                                                    @endif
+                                                    
+                                                    @if($assignment->status === 'completed' && ($assignment->approved_by_name || $assignment->digital_signature_date))
+                                                        <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                            <div class="flex items-start">
+                                                                <svg class="h-5 w-5 text-green-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                <div class="flex-1">
+                                                                    <p class="text-sm font-semibold text-green-800">Digital Signature</p>
+                                                                    <p class="text-xs text-green-700 mt-1">
+                                                                        <strong>Approved by:</strong> {{ $assignment->approved_by_name ?? $assignment->assignedTo->name }}<br>
+                                                                        @if($assignment->approved_by_email)
+                                                                            <strong>Email:</strong> {{ $assignment->approved_by_email }}<br>
+                                                                        @endif
+                                                                        <strong>Date & Time:</strong> {{ $assignment->digital_signature_date ? $assignment->digital_signature_date->format('F d, Y h:i A') : ($assignment->completed_date?->format('F d, Y') ?? 'N/A') }}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="ml-4">
+                                                    @php
+                                                        $taskStatusColors = [
+                                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                                            'in_progress' => 'bg-blue-100 text-blue-800',
+                                                            'completed' => 'bg-green-100 text-green-800',
+                                                            'rejected' => 'bg-red-100 text-red-800',
+                                                        ];
+                                                    @endphp
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $taskStatusColors[$assignment->status] ?? 'bg-gray-100 text-gray-800' }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $assignment->status)) }}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     @endforeach

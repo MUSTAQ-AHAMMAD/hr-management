@@ -89,6 +89,12 @@ class TaskAssignmentController extends Controller
 
         if ($validated['status'] === 'completed') {
             $validated['completed_date'] = now();
+            
+            // Capture digital signature information
+            $user = Auth::user();
+            $validated['approved_by_name'] = $user->name;
+            $validated['approved_by_email'] = $user->email;
+            $validated['digital_signature_date'] = now();
         }
 
         $taskAssignment->update($validated);

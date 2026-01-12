@@ -22,6 +22,9 @@ class TaskAssignment extends Model
         'partial_closure_reason',
         'partial_closure_date',
         'notify_on_availability',
+        'approved_by_name',
+        'approved_by_email',
+        'digital_signature_date',
     ];
 
     protected $casts = [
@@ -30,6 +33,7 @@ class TaskAssignment extends Model
         'partial_closure_date' => 'date',
         'is_partially_closed' => 'boolean',
         'notify_on_availability' => 'boolean',
+        'digital_signature_date' => 'datetime',
     ];
 
     public function task(): BelongsTo
