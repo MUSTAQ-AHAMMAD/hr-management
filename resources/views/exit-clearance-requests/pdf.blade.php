@@ -274,7 +274,9 @@
         </div>
         @endif
         
-        @foreach($exitRequest->taskAssignments->where('status', 'completed')->sortBy('digital_signature_date') as $assignment)
+        @foreach($exitRequest->taskAssignments->where('status', 'completed')->sortBy(function($assignment) {
+            return $assignment->digital_signature_date ?? $assignment->completed_date ?? $assignment->created_at;
+        }) as $assignment)
             <div class="signature-box">
                 <div class="signature-line">
                     <strong>{{ $assignment->task->department->name ?? 'N/A' }} Department</strong><br>
@@ -284,7 +286,7 @@
                     Date: {{ $assignment->digital_signature_date ? $assignment->digital_signature_date->format('F d, Y h:i A') : ($assignment->completed_date?->format('F d, Y') ?? 'N/A') }}<br>
                     Status: <strong style="color: #10b981;">CLEARED</strong>
                     @if($assignment->notes)
-                        <br>Notes: {{ Str::limit($assignment->notes, 100) }}
+                        <br>Notes: {{ str()->limit($assignment->notes, 100) }}
                     @endif
                 </div>
             </div>
