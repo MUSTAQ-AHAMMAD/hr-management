@@ -219,7 +219,19 @@ The line manager approval feature is a critical component of the exit clearance 
 
 ### Routes Configuration
 
-The line manager approval routes are **outside** the authentication middleware to allow access via token:
+The line manager approval routes are **intentionally placed outside** the authentication middleware to allow token-based access:
+
+**Why Outside Auth Middleware?**
+- Line managers may not be system users
+- Allows approval via email without login
+- Token provides authentication mechanism
+- Improves user experience for external approvers
+
+**Security is Maintained:**
+- Routes still use 'web' middleware (includes CSRF, session, cookies)
+- Token validation happens in controller
+- POST requests require CSRF token
+- One-time use tokens with expiration
 
 ```php
 // Line manager approval routes (accessible via token without authentication)
@@ -274,13 +286,29 @@ Route::match(['get', 'post'], 'exit-clearance-requests/{exitClearanceRequest}/li
 
 ## Security Considerations
 
-1. **Token Expiration**: Tokens expire after 7 days
-2. **One-Time Use**: Tokens are deleted after use
-3. **Unique Tokens**: Each token is unique per request
-4. **No Direct Database IDs**: Tokens don't expose internal IDs
-5. **HTTPS Recommended**: Should be used over HTTPS in production
-6. **CSRF Protection**: POST requests include CSRF token
-7. **Email Verification**: Email must be valid for notification delivery
+### Authentication & Authorization
+1. **Token-Based Access**: Line manager routes are outside authentication middleware by design
+   - Tokens provide secure access without requiring system login
+   - This is intentional to allow external line managers to approve
+   
+2. **CSRF Protection**: Still Active
+   - Routes use 'web' middleware which includes CSRF protection
+   - All POST requests require valid CSRF token
+   - Forms include `@csrf` directive
+
+3. **Token Security**:
+   - **Generation**: SHA-256 hash with random string, request ID, and timestamp
+   - **Expiration**: Tokens expire after 7 days
+   - **One-Time Use**: Tokens are deleted after use
+   - **Unique Tokens**: Each token is unique per request
+   - **Validation**: Checked against cached value before allowing access
+   - **No Direct IDs**: Tokens don't expose internal database IDs
+
+4. **Additional Security**:
+   - HTTPS Recommended in production
+   - Email verification ensures delivery to intended recipient
+   - Request validation on all POST endpoints
+   - No authentication bypass (token is the authentication)
 
 ---
 
